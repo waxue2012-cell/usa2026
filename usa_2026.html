@@ -7,6 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d1128">
+  <meta name="robots" content="noindex, nofollow">
   <title>🇺🇸 USA Août 2026</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -195,10 +196,46 @@
     .sec-lbl { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 
     a { color: var(--accent); text-decoration: none; }
+
+    /* LOCKSCREEN */
+    #lockscreen {
+      position: fixed; inset: 0; top:0; right:0; bottom:0; left:0; z-index: 9999;
+      background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
+    }
+    #lockscreen .lock-flag { font-size: 40px; margin-bottom: 14px; }
+    #lockscreen .lock-title {
+      font-size: 18px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+      background: linear-gradient(120deg, #8da8ff 0%, #c084fc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 22px;
+    }
+    #lockscreen input {
+      width: 100%; max-width: 260px; background: var(--card); border: 1px solid var(--border);
+      color: var(--text); font-size: 16px; padding: 12px 14px; border-radius: 10px; text-align: center;
+      letter-spacing: 2px; margin-bottom: 12px;
+    }
+    #lockscreen input:focus { outline: none; border-color: var(--accent); }
+    #lockscreen button {
+      width: 100%; max-width: 260px; background: var(--accent); color: #fff; border: none;
+      font-size: 14px; font-weight: 700; padding: 12px 14px; border-radius: 10px; cursor: pointer;
+    }
+    #lockscreen .lock-error { color: var(--red); font-size: 12px; margin-top: 10px; min-height: 16px; }
   </style>
 </head>
 <body>
-<div id="app">
+
+<div id="lockscreen">
+  <div class="lock-flag">🔒</div>
+  <div class="lock-title">USA — Août 2026</div>
+  <form id="lock-form" autocomplete="off">
+    <input type="password" id="lock-input" placeholder="Code d'accès" inputmode="numeric" autofocus>
+    <button type="submit">Déverrouiller</button>
+    <div class="lock-error" id="lock-error"></div>
+  </form>
+</div>
+
+<div id="app" style="display:none">
   <div class="header">
     <div class="header-title">USA — Août 2026</div>
     <div class="header-sub" id="header-sub">Séjours</div>
@@ -813,6 +850,40 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════
+// VERROUILLAGE PAR CODE D'ACCÈS
+// ═══════════════════════════════════════════
+(function() {
+  const PASSCODE = '0308';
+  const STORAGE_KEY = 'usa2026_unlocked';
+  const lockscreen = document.getElementById('lockscreen');
+  const app = document.getElementById('app');
+  const form = document.getElementById('lock-form');
+  const input = document.getElementById('lock-input');
+  const errorEl = document.getElementById('lock-error');
+
+  function unlock() {
+    lockscreen.style.display = 'none';
+    app.style.display = '';
+  }
+
+  if (localStorage.getItem(STORAGE_KEY) === 'yes') {
+    unlock();
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (input.value.trim() === PASSCODE) {
+      localStorage.setItem(STORAGE_KEY, 'yes');
+      unlock();
+    } else {
+      errorEl.textContent = 'Code incorrect';
+      input.value = '';
+      input.focus();
+    }
+  });
+})();
+
 // ═══════════════════════════════════════════
 // DONNÉES SÉJOURS — JOUR PAR JOUR
 // ═══════════════════════════════════════════
