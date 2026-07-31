@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d1128">
+  <title>🇺🇸 USA Août 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bg: #0d1128; --card: #161b3a; --accent: #6c8fff;
+      --green: #06b88a; --orange: #e8a030; --red: #e05060;
+      --purple: #c084fc; --text: #e8eaff; --muted: #6070a0; --border: #2a3060;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
+    #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+    .header {
+      background: linear-gradient(180deg, #151a35 0%, #0d1128 100%);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+      padding: 14px 16px 16px; padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      text-align: center;
+    }
+    .header-flag { font-size: 22px; display: block; margin-bottom: 5px; }
+    .header-title {
+      font-size: 20px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+      background: linear-gradient(120deg, #8da8ff 0%, #c084fc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .header-sub { font-size: 11px; color: var(--muted); margin-top: 5px; letter-spacing: 0.4px; }
+
+    .content { flex: 1; overflow: hidden; position: relative; }
+    .tab-panel { position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
+    .tab-panel.active { display: block; }
+
+    /* MAP */
+    #map-wrapper { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
+    #map { flex: 1; }
+    .map-filter-bar {
+      display: flex; gap: 7px; padding: 9px 12px; overflow-x: auto;
+      background: rgba(13,17,40,0.97); border-bottom: 1px solid var(--border);
+      flex-shrink: 0; scrollbar-width: none;
+    }
+    .map-filter-bar::-webkit-scrollbar { display: none; }
+    .map-filter-btn {
+      white-space: nowrap; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      background: var(--card); border: 1px solid var(--border); color: var(--muted); cursor: pointer;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .map-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .map-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--card); border-top: 2px solid var(--accent);
+      border-radius: 18px 18px 0 0; padding: 16px 16px 24px;
+      transform: translateY(102%); transition: transform 0.3s ease; z-index: 100; max-height: 65%; overflow-y: auto;
+    }
+    .map-overlay.show { transform: translateY(0); }
+    .overlay-close {
+      position: absolute; top: 14px; right: 14px; background: var(--border); border: none;
+      color: var(--text); width: 30px; height: 30px; border-radius: 50%; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .ov-title { font-size: 15px; font-weight: 700; padding-right: 36px; }
+    .ov-sub { font-size: 11px; color: var(--muted); margin-top: 2px; margin-bottom: 10px; }
+    .map-legend {
+      position: absolute; top: 52px; left: 10px; z-index: 10;
+      background: rgba(13,17,40,0.9); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 10px; font-size: 11px;
+    }
+    .leg-item { display: flex; align-items: center; gap: 7px; padding: 2px 0; }
+    .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      display: flex; background: #111630; border-top: 1px solid var(--border); flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .nav-btn {
+      flex: 1; padding: 8px 2px 6px; display: flex; flex-direction: column;
+      align-items: center; gap: 2px; background: none; border: none;
+      color: var(--muted); font-size: 9px; cursor: pointer; transition: color 0.15s;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .nav-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    /* SÉJOURS */
+    .list-wrap { padding: 12px; display: flex; flex-direction: column; gap: 0; padding-bottom: 24px; }
+    .dest-day-hdr { display:flex; align-items:center; gap:9px; margin: 14px 0 7px; }
+    .dest-day-hdr:first-child { margin-top: 2px; }
+    .dest-day-line { flex:1; height:1px; background:var(--border); }
+    .dest-day-label { font-size:11px; font-weight:800; color:var(--accent); white-space:nowrap; letter-spacing:0.8px; text-transform:uppercase; }
+    .dest-group-hdr { font-size:13px; font-weight:800; color:var(--text); background:rgba(6,184,138,0.1); border:1px solid rgba(6,184,138,0.25); border-radius:10px; padding:9px 14px; margin:18px 0 0; display:flex; align-items:center; gap:7px; }
+    .dest-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      display: flex; align-items: center; gap: 11px; padding: 13px; cursor: pointer;
+      margin-bottom: 9px;
+    }
+    .dest-card:active { opacity: 0.75; }
+    .dest-emoji { font-size: 28px; flex-shrink: 0; width: 36px; text-align: center; }
+    .dest-info { flex: 1; min-width: 0; }
+    .dest-title { font-size: 15px; font-weight: 700; }
+    .dest-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .dest-meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .dest-date-top { font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 4px; letter-spacing: -0.2px; }
+    .dest-dates { font-size: 11px; font-weight: 700; color: var(--accent);
+      background: rgba(108,143,255,0.12); padding: 3px 7px; border-radius: 5px; }
+    .badge { font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 5px; }
+    .badge-ok { background: rgba(6,184,138,0.12); color: var(--green); }
+    .badge-warn { background: rgba(232,160,48,0.12); color: var(--orange); }
+    .badge-tbd { background: rgba(224,80,96,0.12); color: var(--red); }
+    .badge-rest { background: rgba(108,143,255,0.12); color: var(--accent); }
+    .dest-arrow { color: var(--muted); font-size: 20px; flex-shrink: 0; }
+
+    /* DETAIL */
+    .detail-bar {
+      background: #111630; border-bottom: 1px solid var(--border);
+      padding: 11px 16px; padding-top: calc(11px + env(safe-area-inset-top, 0px));
+      display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10;
+    }
+    .back-btn {
+      background: rgba(108,143,255,0.12); border: none; color: var(--accent);
+      padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .detail-head { flex: 1; }
+    .detail-title { font-size: 15px; font-weight: 700; }
+    .detail-dates { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .steps-wrap { padding: 14px; display: flex; flex-direction: column; gap: 0; padding-bottom: 28px; }
+    .step { display: flex; gap: 12px; }
+    .step-gutter { display: flex; flex-direction: column; align-items: center; width: 14px; flex-shrink: 0; padding-top: 4px; }
+    .step-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg); flex-shrink: 0; }
+    .step-line { width: 2px; background: var(--border); flex: 1; min-height: 20px; margin: 3px 0; }
+    .step-body { flex: 1; padding-bottom: 20px; }
+    .step-time { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .step-name { font-size: 15px; font-weight: 700; }
+    .step-address { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .step-note { font-size: 12px; color: #8898c0; margin-top: 5px; line-height: 1.5; }
+    .tip { font-size: 12px; color: #f9c74f; margin-top: 5px; line-height: 1.5; }
+    .step-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .step-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+    }
+    .btn-maps { background: rgba(6,184,138,0.12); color: var(--green); border: 1px solid rgba(6,184,138,0.2); }
+    .btn-phone { background: rgba(108,143,255,0.12); color: var(--accent); border: 1px solid rgba(108,143,255,0.2); }
+    .btn-warn { background: rgba(232,160,48,0.12); color: var(--orange); border: 1px solid rgba(232,160,48,0.2); }
+
+    /* ALERT */
+    .alert {
+      background: rgba(232,160,48,0.1); border: 1px solid rgba(232,160,48,0.3);
+      border-radius: 10px; padding: 10px 13px; font-size: 12px; color: var(--orange); line-height: 1.5;
+      margin: 0 12px;
+    }
+
+    /* HÔTELS */
+    .hotels-wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 28px; }
+    .hotel-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .hotel-hd { padding: 12px 14px 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .hotel-title { font-size: 14px; font-weight: 700; }
+    .hotel-addr { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .hotel-rows { padding: 0 14px 12px; border-top: 1px solid var(--border); }
+    .hotel-actions { padding: 0 14px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid rgba(42,48,96,0.4); font-size: 12px; gap: 8px; }
+    .row:last-child { border-bottom: none; }
+    .row-l { color: var(--muted); flex-shrink: 0; }
+    .row-r { text-align: right; font-weight: 500; }
+    .row-r.g { color: var(--green); }
+    .row-r.o { color: var(--orange); }
+    .row-r.r { color: var(--red); }
+    .row-r.m { font-family: monospace; color: var(--accent); font-size: 12px; }
+
+    /* TICKETS */
+    .tickets-wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 28px; }
+    .ticket-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .ticket-hd { padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .ticket-title { font-size: 14px; font-weight: 700; }
+    .ticket-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .ticket-rows { padding: 0 14px 12px; border-top: 1px solid var(--border); }
+    .ticket-actions { padding: 0 14px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .tbuy { color: var(--red); background: rgba(224,80,96,0.1); border: 1px solid rgba(224,80,96,0.25); }
+    .tok { color: var(--green); background: rgba(6,184,138,0.1); border: 1px solid rgba(6,184,138,0.25); }
+
+    /* VOLS */
+    .vols-wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 28px; }
+    .vol-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .vol-hd { padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .vol-title { font-size: 14px; font-weight: 700; }
+    .vol-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .chip { font-size: 11px; font-weight: 700; color: var(--orange); background: rgba(232,160,48,0.12); padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+    .vol-rows { padding: 0 14px 12px; border-top: 1px solid var(--border); }
+    .sec-lbl { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-title">USA — Août 2026</div>
+    <div class="header-sub" id="header-sub">Séjours</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ CARTE ══ -->
+    <div class="tab-panel" id="panel-map">
+      <div id="map-wrapper">
+        <div class="map-filter-bar">
+          <button class="map-filter-btn active" id="fd-all" onclick="showDayOnMap('all')">🌎</button>
+          <button class="map-filter-btn" id="fd-d03" onclick="showDayOnMap('d03')">3/08</button>
+          <button class="map-filter-btn" id="fd-d04" onclick="showDayOnMap('d04')">4/08</button>
+          <button class="map-filter-btn" id="fd-d05" onclick="showDayOnMap('d05')">5/08</button>
+          <button class="map-filter-btn" id="fd-d06" onclick="showDayOnMap('d06')">6/08</button>
+          <button class="map-filter-btn" id="fd-d07" onclick="showDayOnMap('d07')">7/08</button>
+          <button class="map-filter-btn" id="fd-d08" onclick="showDayOnMap('d08')">8/08</button>
+          <button class="map-filter-btn" id="fd-d09" onclick="showDayOnMap('d09')">9/08</button>
+          <button class="map-filter-btn" id="fd-d10" onclick="showDayOnMap('d10')">10/08</button>
+          <button class="map-filter-btn" id="fd-d13" onclick="showDayOnMap('d13')">13/08</button>
+          <button class="map-filter-btn" id="fd-d14" onclick="showDayOnMap('d14')">14/08</button>
+          <button class="map-filter-btn" id="fd-d15" onclick="showDayOnMap('d15')">15/08</button>
+          <button class="map-filter-btn" id="fd-d16" onclick="showDayOnMap('d16')">16/08</button>
+        </div>
+        <div id="map"></div>
+        <div class="map-overlay" id="map-overlay">
+          <button class="overlay-close" onclick="closeOverlay()">×</button>
+          <div id="overlay-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SÉJOURS ══ -->
+    <div class="tab-panel active" id="panel-sejours">
+      <div style="height:10px"></div>
+      <div class="alert">⚠️ Miami Beach — USD 501,01 restant à payer sur Booking.com · réf. 5658739045</div>
+      <div class="list-wrap" id="dest-list"></div>
+    </div>
+
+    <!-- ══ DÉTAIL ══ -->
+    <div class="tab-panel" id="panel-detail">
+      <div class="detail-bar">
+        <button class="back-btn" onclick="goBack()">‹ Retour</button>
+        <div class="detail-head">
+          <div class="detail-title" id="detail-title"></div>
+          <div class="detail-dates" id="detail-dates"></div>
+        </div>
+      </div>
+      <div class="steps-wrap" id="detail-steps"></div>
+    </div>
+
+    <!-- ══ HÔTELS ══ -->
+    <div class="tab-panel" id="panel-hotels">
+      <div class="hotels-wrap">
+
+        <div class="hotel-card">
+          <div class="hotel-hd">
+            <div>
+              <div class="hotel-title">🎡 Residence Inn Flamingo Crossings</div>
+              <div class="hotel-addr">2111 Flagler Ave, Winter Garden FL 34787</div>
+            </div>
+            <div class="badge badge-ok">3 → 7 août</div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l">Check-in</span><span class="row-r">après 16h00 le 3 août (~22h avec vol)</span></div>
+            <div class="row"><span class="row-l">Check-out</span><span class="row-r">avant 11h00 le 7 août</span></div>
+            <div class="row"><span class="row-l">Chambre</span><span class="row-r">Suite 1 chambre · 2 lits queen</span></div>
+            <div class="row"><span class="row-l">Prix</span><span class="row-r g">USD 580,50 · prépayé Amex ✅</span></div>
+            <div class="row"><span class="row-l">Annulation</span><span class="row-r o">gratuite avant 1er août</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">73096730</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787" target="_blank" class="step-btn btn-maps">📍 Maps</a>
+            <a href="tel:+14079933233" class="step-btn btn-phone">📞 +1 407 993 3233</a>
+          </div>
+        </div>
+
+        <div class="hotel-card" style="border-color:rgba(232,160,48,0.4)">
+          <div class="hotel-hd">
+            <div>
+              <div class="hotel-title">🏖 The Netherland Miami Beach</div>
+              <div class="hotel-addr">1330 Ocean Drive, Miami Beach FL 33139</div>
+            </div>
+            <div class="badge badge-warn">7 → 9 août</div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l">Check-in</span><span class="row-r">à partir de 17h00 le 7 août</span></div>
+            <div class="row"><span class="row-l">Check-out</span><span class="row-r">avant 10h00 le 9 août</span></div>
+            <div class="row"><span class="row-l">Chambre</span><span class="row-r">Appart. 2 ch. + terrasse</span></div>
+            <div class="row"><span class="row-l">Code accès</span><span class="row-r m">1588</span></div>
+            <div class="row"><span class="row-l">⚠️ À payer</span><span class="row-r r">USD 501,01 sur Booking.com</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">5658739045</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://maps.google.com/?q=1330+Ocean+Drive+Miami+Beach+FL+33139" target="_blank" class="step-btn btn-maps">📍 Maps</a>
+            <a href="tel:+13052898283" class="step-btn btn-phone">📞 +1 305 289 8283</a>
+            <a href="https://www.booking.com" target="_blank" class="step-btn btn-warn">⚠️ Payer sur Booking.com</a>
+          </div>
+        </div>
+
+        <div class="hotel-card" style="border-color:rgba(224,80,96,0.3)">
+          <div class="hotel-hd">
+            <div>
+              <div class="hotel-title">🛸 Hôtel Titusville ou Jupiter</div>
+              <div class="hotel-addr">Nuit avant Kennedy Space Center — à confirmer</div>
+            </div>
+            <div class="badge badge-tbd">9 août</div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l">Statut</span><span class="row-r r">⚠️ Non réservé</span></div>
+            <div class="row"><span class="row-l">Option A</span><span class="row-r">Titusville FL · 15 min de KSC ✅ (recommandé)</span></div>
+            <div class="row"><span class="row-l">Option B</span><span class="row-r">Jupiter FL · ~2h10 de KSC</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://maps.google.com/?q=Hotels+in+Titusville+FL+near+Kennedy+Space+Center" target="_blank" class="step-btn btn-maps">📍 Hôtels Titusville</a>
+            <a href="https://maps.google.com/?q=Hotels+in+Jupiter+FL" target="_blank" class="step-btn btn-maps">📍 Hôtels Jupiter</a>
+          </div>
+        </div>
+
+        <div class="hotel-card" style="border-color:rgba(224,80,96,0.3)">
+          <div class="hotel-hd">
+            <div>
+              <div class="hotel-title">🏨 Orlando MCO — nuit après KSC</div>
+              <div class="hotel-addr">Proche MCO de préférence — à confirmer</div>
+            </div>
+            <div class="badge badge-tbd">10 → 12 août</div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l">Nuits</span><span class="row-r">~2 nuits (arrivée soir du 10 août après KSC)</span></div>
+            <div class="row"><span class="row-l">Statut</span><span class="row-r r">⚠️ Non réservé</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://maps.google.com/?q=Hotels+near+Orlando+International+Airport+FL" target="_blank" class="step-btn btn-maps">📍 Hôtels proches MCO</a>
+          </div>
+        </div>
+
+        <div class="hotel-card" style="border-color:rgba(6,184,138,0.3)">
+          <div class="hotel-hd">
+            <div>
+              <div class="hotel-title">🏢 Hyatt Regency Orlando Airport</div>
+              <div class="hotel-addr">9300 Jeff Fuqua Blvd, Orlando FL 32827</div>
+            </div>
+            <div class="badge badge-ok">12 → 13 août</div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l">Check-in</span><span class="row-r">12 août · à partir de 16h00 · après restitution voiture</span></div>
+            <div class="row"><span class="row-l">Check-out</span><span class="row-r">13 août · avant 11h00 → vol MCO 09:45 ⚠️</span></div>
+            <div class="row"><span class="row-l">Chambre</span><span class="row-r">2 Grands Lits Queen · 2 adultes + 1 enfant</span></div>
+            <div class="row"><span class="row-l">Prix</span><span class="row-r o">~€197 / $223,88 à régler sur place</span></div>
+            <div class="row"><span class="row-l">Annulation</span><span class="row-r g">Gratuite jusqu'au 10 août 23h59 ✅</span></div>
+            <div class="row"><span class="row-l">Réf. Booking</span><span class="row-r m">5163.183.769 · Code: 9660</span></div>
+            <div class="row"><span class="row-l">Tél.</span><span class="row-r">+1 407 825 1234</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://maps.google.com/?q=Hyatt+Regency+Orlando+International+Airport+9300+Jeff+Fuqua+Blvd+Orlando+FL+32827" target="_blank" class="step-btn btn-maps">📍 Maps</a>
+            <a href="tel:+14078251234" class="step-btn btn-phone">📞 +1 407 825 1234</a>
+          </div>
+        </div>
+
+        <div class="hotel-card">
+          <div class="hotel-hd">
+            <div>
+              <div class="hotel-title">🌁 Riu Plaza Fisherman's Wharf</div>
+              <div class="hotel-addr">2600 Mason St, San Francisco CA 94133</div>
+            </div>
+            <div class="badge badge-ok">13 → 16 août</div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l">Check-in</span><span class="row-r">13 août</span></div>
+            <div class="row"><span class="row-l">Check-out</span><span class="row-r">16 août · ⚠️ départ ~22h pour SFO</span></div>
+            <div class="row"><span class="row-l">Formule</span><span class="row-r g">B&B · petit-déj inclus ✅</span></div>
+            <div class="row"><span class="row-l">Prix</span><span class="row-r g">USD 879,18 prépayé ✅</span></div>
+            <div class="row"><span class="row-l">Fees hôtel</span><span class="row-r o">+ USD 123,58 à régler sur place</span></div>
+            <div class="row"><span class="row-l">Annulation</span><span class="row-r o">gratuite avant 10 août</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">WRC3QMRG</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://maps.google.com/?q=2600+Mason+St+San+Francisco+CA+94133" target="_blank" class="step-btn btn-maps">📍 Maps</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ TICKETS ══ -->
+    <div class="tab-panel" id="panel-tickets">
+      <div class="tickets-wrap">
+
+        <!-- ── SECTION : PRIS ✅ ── -->
+        <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;padding:4px 2px 8px">✅ Billets confirmés</div>
+
+        <div class="ticket-card">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🏝 Alcatraz Night Tour</div>
+              <div class="ticket-sub">Alcatraz Cruises · Pier 33, San Francisco</div>
+            </div>
+            <div class="badge badge-ok">✅ Confirmé</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">13 août · 18h30</span></div>
+            <div class="row"><span class="row-l">Embarquement</span><span class="row-r o">18h15 Pier 33 (8 min à pied du Ferry Building)</span></div>
+            <div class="row"><span class="row-l">Voyageurs</span><span class="row-r">2 adultes + 1 enfant</span></div>
+            <div class="row"><span class="row-l">Prix total</span><span class="row-r g">USD 154,15 · prépayé ✅</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">#77111467</span></div>
+            <div class="row"><span class="row-l">Retour</span><span class="row-r">Ferry ~21h30</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://maps.google.com/?q=Pier+33+San+Francisco+CA" target="_blank" class="step-btn btn-maps">📍 Pier 33</a>
+          </div>
+        </div>
+
+        <!-- ── SECTION : À VÉRIFIER ⚠️ ── -->
+        <div style="font-size:10px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:1px;padding:12px 2px 8px">⚠️ À vérifier avant départ</div>
+
+        <div class="ticket-card" style="border-color:rgba(232,160,48,0.35)">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🛸 Kennedy Space Center · 10/08</div>
+              <div class="ticket-sub">Billet Taobao / Xianyu — vérification obligatoire J-1</div>
+            </div>
+            <div class="badge badge-tbd">⚠️ À vérifier</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">10 août · 9h00–17h00</span></div>
+            <div class="row"><span class="row-l">⚠️ Action J-1</span><span class="row-r o">Vérifier QR code nominatif daté ou voucher échangeable au guichet</span></div>
+            <div class="row"><span class="row-l">Si QR nominatif</span><span class="row-r">Utiliser directement à l'entrée</span></div>
+            <div class="row"><span class="row-l">Si voucher</span><span class="row-r">Passer au guichet à l'arrivée</span></div>
+            <div class="row"><span class="row-l">Si arrivée tardive</span><span class="row-r o">Bus tour manqué → Gateway + IMAX en repli</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Merritt+Island+FL" target="_blank" class="step-btn btn-maps">📍 KSC</a>
+          </div>
+        </div>
+
+        <!-- ── SECTION : À ACHETER / RÉSERVER ── -->
+        <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1px;padding:12px 2px 8px">🎫 À acheter / réserver</div>
+
+        <div class="ticket-card" style="border-color:rgba(249,199,79,0.35)">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🎡 EPCOT — Lightning Lane Multi-Pass</div>
+              <div class="ticket-sub">Via app My Disney Experience</div>
+            </div>
+            <div class="badge" style="background:rgba(249,199,79,0.12);color:#f9c74f">⚡ À réserver</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">4 août 2026</span></div>
+            <div class="row"><span class="row-l">Ouverture</span><span class="row-r o">3 jours avant · 7h heure locale (1er août)</span></div>
+            <div class="row"><span class="row-l">Priorité 1</span><span class="row-r">Frozen Ever After ✅</span></div>
+            <div class="row"><span class="row-l">Priorité 2</span><span class="row-r">Remy's Ratatouille Adventure ⚠️</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://disneyworld.disney.go.com/experience-updates/lightning-lane/" target="_blank" class="step-btn btn-warn">⚡ My Disney Experience</a>
+            <a href="https://maps.google.com/?q=EPCOT+200+Epcot+Center+Dr+Lake+Buena+Vista+FL" target="_blank" class="step-btn btn-maps">📍 EPCOT</a>
+          </div>
+        </div>
+
+        <div class="ticket-card" style="border-color:rgba(249,199,79,0.35)">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🏰 Magic Kingdom — Lightning Lane Multi-Pass</div>
+              <div class="ticket-sub">Via app My Disney Experience</div>
+            </div>
+            <div class="badge" style="background:rgba(249,199,79,0.12);color:#f9c74f">⚡ À réserver</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">6 août 2026</span></div>
+            <div class="row"><span class="row-l">Ouverture</span><span class="row-r o">3 jours avant · 7h heure locale (3 août)</span></div>
+            <div class="row"><span class="row-l">⚡ Priorité absolue</span><span class="row-r o">Seven Dwarfs Mine Train — part en quelques minutes</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://disneyworld.disney.go.com/experience-updates/lightning-lane/" target="_blank" class="step-btn btn-warn">⚡ My Disney Experience</a>
+            <a href="https://maps.google.com/?q=Magic+Kingdom+1180+Seven+Seas+Dr+Lake+Buena+Vista+FL" target="_blank" class="step-btn btn-maps">📍 Magic Kingdom</a>
+          </div>
+        </div>
+
+        <div class="ticket-card" style="border-color:rgba(224,80,96,0.35)">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🐊 Everglades Alligator Farm</div>
+              <div class="ticket-sub">Airboat + Entrée générale — billet combo</div>
+            </div>
+            <div class="badge badge-tbd">⚠️ À acheter</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">9 août · ~12h00</span></div>
+            <div class="row"><span class="row-l">Airboat</span><span class="row-r">Départs fixes à :20 — viser 12h20</span></div>
+            <div class="row"><span class="row-l">Spectacles</span><span class="row-r">10h / 12h / 14h / 16h</span></div>
+            <div class="row"><span class="row-l">Voyageurs</span><span class="row-r">2 adultes + 1 enfant</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://everglades.com" target="_blank" class="step-btn tbuy">🎫 Acheter sur everglades.com</a>
+            <a href="https://maps.google.com/?q=40351+SW+192nd+Ave+Homestead+FL" target="_blank" class="step-btn btn-maps">📍 Maps</a>
+          </div>
+        </div>
+
+        <div class="ticket-card" style="border-color:rgba(192,132,252,0.35)">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🔬 Exploratorium · 16/08</div>
+              <div class="ticket-sub">Pier 15, San Francisco · ~3h sur place</div>
+            </div>
+            <div class="badge badge-tbd">🎫 À acheter</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">16 août · 10h00 → 13h30</span></div>
+            <div class="row"><span class="row-l">À pied</span><span class="row-r">15 min depuis Riu Plaza</span></div>
+            <div class="row"><span class="row-l">Déjeuner</span><span class="row-r">SeaGlass Restaurant sur place (vue baie)</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://www.exploratorium.edu/visit/tickets" target="_blank" class="step-btn tbuy">🎫 Acheter billets</a>
+            <a href="https://maps.google.com/?q=Exploratorium+Pier+15+San+Francisco+CA" target="_blank" class="step-btn btn-maps">📍 Pier 15</a>
+          </div>
+        </div>
+
+        <!-- ── SECTION : SUR PLACE ── -->
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:12px 2px 8px">💳 Paiement sur place</div>
+
+        <div class="ticket-card">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">🌿 Everglades National Park — Entrée</div>
+              <div class="ticket-sub">Ernest F. Coe · paiement à l'entrée</div>
+            </div>
+            <div class="badge badge-rest">Sur place</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">9 août · ~9h00</span></div>
+            <div class="row"><span class="row-l">Tarif</span><span class="row-r">~$35/véhicule · valable 7 jours</span></div>
+            <div class="row"><span class="row-l">Paiement</span><span class="row-r">Carte acceptée à l'entrée</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://maps.google.com/?q=40001+State+Rd+9336+Homestead+FL" target="_blank" class="step-btn btn-maps">📍 Ernest F. Coe</a>
+          </div>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-hd">
+            <div>
+              <div class="ticket-title">⛴ Ferry Sausalito → Pier 39 · 14/08</div>
+              <div class="ticket-sub">Blue &amp; Gold Fleet · 30 min de traversée</div>
+            </div>
+            <div class="badge badge-rest">Sur place</div>
+          </div>
+          <div class="ticket-rows">
+            <div class="row"><span class="row-l">Date</span><span class="row-r">14 août · ~13h30</span></div>
+            <div class="row"><span class="row-l">Trajet</span><span class="row-r">Sausalito → Pier 39 SF</span></div>
+            <div class="row"><span class="row-l">Tarif adulte</span><span class="row-r">$14,25</span></div>
+            <div class="row"><span class="row-l">Tarif enfant</span><span class="row-r">$8,50 (Mya)</span></div>
+            <div class="row"><span class="row-l">Paiement</span><span class="row-r">Carte à bord ou terminal Sausalito</span></div>
+          </div>
+          <div class="ticket-actions">
+            <a href="https://maps.google.com/?q=Sausalito+Ferry+Terminal+CA" target="_blank" class="step-btn btn-maps">📍 Sausalito Terminal</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ VOLS ══ -->
+    <div class="tab-panel" id="panel-vols">
+      <div class="vols-wrap">
+
+        <div class="vol-card">
+          <div class="vol-hd">
+            <div><div class="vol-title">✈️ AF0096 — Paris CDG → Orlando</div><div class="vol-sub">Air France · Terminal 2E</div></div>
+            <div class="chip">3 août</div>
+          </div>
+          <div class="vol-rows">
+            <div class="row"><span class="row-l">Horaire</span><span class="row-r">CDG 16:40 → MCO 20:25</span></div>
+            <div class="row"><span class="row-l">Sièges</span><span class="row-r">30A Jérome · 31A Wa · 31C Mya</span></div>
+            <div class="row"><span class="row-l">Bagages</span><span class="row-r g">3 soute + 3 cabine · repas ✅</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">YCG6RA</span></div>
+          </div>
+        </div>
+
+        <div class="vol-card">
+          <div class="vol-hd">
+            <div><div class="vol-title">✈️ UA2802 — Orlando → San Francisco</div><div class="vol-sub">United Airlines · B737 MAX 9 · Economy Plus®</div></div>
+            <div class="chip">13 août</div>
+          </div>
+          <div class="vol-rows">
+            <div class="row"><span class="row-l">Horaire</span><span class="row-r">MCO 09:45 → SFO 12:34 · 5h49</span></div>
+            <div class="row"><span class="row-l">Terminal</span><span class="row-r">MCO Term. B → SFO Term. 3</span></div>
+            <div class="row"><span class="row-l">Sièges</span><span class="row-r">7D Wa · 7E Jérome · 7F Mya</span></div>
+            <div class="row"><span class="row-l">Bagages</span><span class="row-r g">1 soute/pers · Priority boarding ✅</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">HWK8RG</span></div>
+          </div>
+        </div>
+
+        <div class="vol-card">
+          <div class="vol-hd">
+            <div><div class="vol-title">✈️ CX0873 — San Francisco → Hong Kong</div><div class="vol-sub">Cathay Pacific · Premium Éco · 777-300ER</div></div>
+            <div class="chip">17 août 01:20</div>
+          </div>
+          <div class="vol-rows">
+            <div class="row"><span class="row-l">Horaire</span><span class="row-r">SFO 01:20 → HKG 06:15+1</span></div>
+            <div class="row"><span class="row-l">Sièges</span><span class="row-r">30E Wa · 30G Jérome · 31G Mya</span></div>
+            <div class="row"><span class="row-l">Bagages</span><span class="row-r g">2 soute/pers ✅</span></div>
+            <div class="row"><span class="row-l">⚠️ Départ</span><span class="row-r o">Quitter hôtel ~22h le 16 août</span></div>
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">E5RLF4</span></div>
+          </div>
+        </div>
+
+        <!-- LOCATION VOITURE -->
+        <div class="vol-card" style="border-color:rgba(108,143,255,0.35)">
+          <div class="vol-hd">
+            <div>
+              <div class="vol-title">🚗 Enterprise Rent-A-Car — MCO</div>
+              <div class="vol-sub">Chevrolet Equinox ou similaire · Automatique · Kilométrage illimité</div>
+            </div>
+            <div class="chip" style="color:var(--accent);background:rgba(108,143,255,0.12)">3→12 août</div>
+          </div>
+          <div class="vol-rows">
+            <div class="row"><span class="row-l">Réf.</span><span class="row-r m">2125932927</span></div>
+            <div class="row"><span class="row-l">Locataire</span><span class="row-r">JÉROME GAVINET</span></div>
+            <div class="row"><span class="row-l">Prix total</span><span class="row-r g">€640,72 / $728,43 · assurances incluses ✅</span></div>
+            <div class="row"><span class="row-l">Assurances</span><span class="row-r g">Dommages + Responsabilité civile ✅</span></div>
+            <div class="row"><span class="row-l">Kilométrage</span><span class="row-r g">Illimité ✅</span></div>
+          </div>
+
+          <!-- RÉCUPÉRATION -->
+          <div style="padding:0 14px 6px;font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.8px;border-top:1px solid var(--border);padding-top:10px;">📥 Récupération — 3 août à 21h00</div>
+          <div class="vol-rows">
+            <div class="row"><span class="row-l">Adresse</span><span class="row-r">1 Jeff Fuqua Blvd, Orlando FL 32827</span></div>
+            <div class="row"><span class="row-l">Étape 1</span><span class="row-r">À la sortie de l'avion → suivre panneaux <strong>Rental Car</strong></span></div>
+            <div class="row"><span class="row-l">Étape 2</span><span class="row-r">Enterprise : Niveau 1 des terminaux A et B · Niveau 4 du terminal C</span></div>
+            <div class="row"><span class="row-l">Étape 3</span><span class="row-r">Comptoir Enterprise → signer le contrat de location</span></div>
+            <div class="row"><span class="row-l">Étape 4</span><span class="row-r">Voiture au parking Niveau 1 en face des terminaux A/B/C — accessible à pied</span></div>
+            <div class="row"><span class="row-l">⚡ Astuce</span><span class="row-r o">Pré-enregistrement en ligne avant le départ = moins d'attente au comptoir</span></div>
+            <div class="row"><span class="row-l">🛣️ Péages FL</span><span class="row-r o">Demander le TollPass au comptoir — nombreuses autoroutes à péage sans option espèces en Floride</span></div>
+          </div>
+
+          <!-- RESTITUTION -->
+          <div style="padding:0 14px 6px;font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.8px;border-top:1px solid var(--border);padding-top:10px;">📤 Restitution — 12 août à 21h00</div>
+          <div class="vol-rows">
+            <div class="row"><span class="row-l">Adresse</span><span class="row-r">1 Jeff Fuqua Blvd, Orlando FL 32827 (même agence MCO)</span></div>
+            <div class="row"><span class="row-l">Étape 1</span><span class="row-r">Suivre panneaux <strong>Car Return / Rental Car Return</strong> à MCO</span></div>
+            <div class="row"><span class="row-l">Étape 2</span><span class="row-r">Garer la voiture dans la zone Enterprise désignée</span></div>
+            <div class="row"><span class="row-l">Étape 3</span><span class="row-r">Prendre vos bagages · remettre les clés au comptoir ✅</span></div>
+            <div class="row"><span class="row-l">✅ Horaire</span><span class="row-r g">Restitution 21h00 · agence ouverte — comptoir disponible</span></div>
+            <div class="row"><span class="row-l">Après</span><span class="row-r">Hôtel Booking.com proche MCO · vol MCO 09:45 le 13 août</span></div>
+            <div class="row"><span class="row-l">Tél. agence</span><span class="row-r">+1 844-951-0601</span></div>
+          </div>
+
+          <div style="padding:8px 14px 12px;display:flex;flex-wrap:wrap;gap:8px;">
+            <a href="https://maps.google.com/?q=Enterprise+Rent-A-Car+1+Jeff+Fuqua+Blvd+Orlando+FL+32827" target="_blank" class="step-btn btn-maps">📍 Enterprise MCO</a>
+            <a href="tel:+18449510601" class="step-btn btn-phone">📞 +1 844-951-0601</a>
+            <a href="https://www.enterprise.fr/fr/home.html" target="_blank" class="step-btn" style="background:rgba(6,184,138,0.12);color:var(--green);border:1px solid rgba(6,184,138,0.2)">🌐 Pré-enregistrement en ligne</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ BUDGET ══ -->
+    <div class="tab-panel" id="panel-budget">
+      <div class="hotels-wrap">
+
+        <!-- ── TABLEAU FRANCE ── -->
+        <div class="hotel-card" style="border-color:rgba(249,199,79,0.35)">
+          <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+            <div style="font-size:14px;font-weight:700">🇫🇷 France &amp; avant départ</div>
+            <div style="text-align:right">
+              <div style="font-size:13px;font-weight:800;color:var(--green)">~5 847 € ✅</div>
+              <div style="font-size:10px;color:var(--muted)">tout payé</div>
+            </div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Vol depuis Chine</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">HU757 SZX→CDG (Wa + Mya)</span><span class="row-r g">~770 € ✅ · CNY 6 086 · Réf. ATEQFJ</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Trains France</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">TGV 6129 Paris→Aix · 1er juil.</span><span class="row-r g">131,50 € ✅ · Réf. AP8TXY</span></div>
+            <div class="row"><span class="row-l">TGV+TER Aix→Évian · 12 juil. (Wa)</span><span class="row-r g">80,90 € ✅ · Réf. BH244C</span></div>
+            <div class="row"><span class="row-l">TGV 6132 Aix→Paris · 13 juil. (Jérome)</span><span class="row-r g">86,00 € ✅ · Réf. P6UYPV</span></div>
+            <div class="row"><span class="row-l">TGV 6506 Évian→Paris · 14 juil. (Wa)</span><span class="row-r g">128,00 € ✅ · Réf. DACWDG</span></div>
+            <div class="row"><span class="row-l">TGV Paris→Aix · 27 juil. (Jay + Wa)</span><span class="row-r g">148,00 € ✅ · Réf. C7UN3R</span></div>
+            <div class="row"><span class="row-l">TGV Aix→Paris · 30 juil.</span><span class="row-r g">110,50 € ✅ · Réf. KTMYJT</span></div>
+            <div class="row"><span class="row-l">TGV 6117 Paris→Aix · 31 juil.</span><span class="row-r g">164,00 € ✅</span></div>
+            <div class="row"><span class="row-l">OUIGO Aix→CDG 3 août ❌ (non pris)</span><span class="row-r" style="color:var(--red)">136,00 € ❌ · Réf. R4HKRT</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Hébergement</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">VCS Vars · CSEC BNP · 4→11 juil.</span><span class="row-r g">1 363,09 € ✅ · Réf. 271720</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Vol CDG → USA</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">AF0096 CDG→Orlando · 3 août</span><span class="row-r g">2 728,81 € ✅ · Réf. YCG6RA</span></div>
+            <div class="row" style="padding-top:9px;border-top:1px solid var(--border)">
+              <span class="row-l" style="font-weight:700">Total France</span>
+              <span class="row-r g" style="font-weight:800">~5 847 € ✅</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TABLEAU ÉTATS-UNIS ── -->
+        <div class="hotel-card" style="border-color:rgba(108,143,255,0.35)">
+          <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+            <div style="font-size:14px;font-weight:700">🇺🇸 États-Unis</div>
+            <div style="text-align:right">
+              <div style="font-size:12px;font-weight:800;color:var(--green)">~$6 455 ✅</div>
+              <div style="font-size:11px;font-weight:700;color:var(--red)">+ $624,59 ⚠️</div>
+            </div>
+          </div>
+          <div class="hotel-rows">
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Administratif</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">ESTA · US Customs · 3 personnes</span><span class="row-r g">~105 € ✅ · HK$965,86</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Location voiture</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">Enterprise Rent-A-Car · 3→12/08</span><span class="row-r g">€640,72 ✅ ($728,43)</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Hébergement</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">Residence Inn Orlando · 3→7/08</span><span class="row-r g">$580,50 ✅ · Réf. 73096730</span></div>
+            <div class="row"><span class="row-l">The Netherland Miami Beach · 7→9/08</span><span class="row-r" style="text-align:right"><span style="color:var(--green)">$501,00 ✅</span> <span style="color:var(--red)">+ $501,01 ⚠️</span></span></div>
+            <div class="row"><span class="row-l">Riu Plaza San Francisco · 13→16/08</span><span class="row-r g">$879,18 ✅ · Réf. WRC3QMRG</span></div>
+            <div class="row"><span class="row-l">Fees hôtel SF · sur place</span><span class="row-r o">$123,58 ⚠️ à payer</span></div>
+            <div class="row"><span class="row-l">Hôtel Titusville ou Jupiter · 9/08</span><span class="row-r r">Non réservé</span></div>
+            <div class="row"><span class="row-l">Hyatt Regency MCO · 12→13/08</span><span class="row-r o">~€197 ⚠️ sur place · Réf. 5163.183.769</span></div>
+            <div class="row"><span class="row-l">Hôtel MCO · 10→12/08</span><span class="row-r r">Non réservé</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Activités &amp; Tickets</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">Alcatraz Night Tour · 13/08</span><span class="row-r g">$154,15 ✅ · Réf. #77111467</span></div>
+            <div class="row"><span class="row-l">Kennedy Space Center · 10/08</span><span class="row-r o">Taobao — vérifier QR/voucher</span></div>
+            <div class="row"><span class="row-l">Lightning Lane Disney ×2 jours</span><span class="row-r o">~$30–60/pers · à réserver</span></div>
+            <div class="row"><span class="row-l">Everglades Alligator Farm combo</span><span class="row-r r">⚠️ À acheter</span></div>
+            <div class="row"><span class="row-l">Everglades NP entrée · 9/08</span><span class="row-r o">~$35 sur place</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Vols</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">UA2802 MCO→SFO · 13/08 (vol)</span><span class="row-r g">HKD 6 687 (~$791) ✅ · Réf. HWK8RG</span></div>
+            <div class="row"><span class="row-l">UA2802 Economy Plus® bundle</span><span class="row-r g">$522,60 ✅ · Amex 94002</span></div>
+            <div class="row"><span class="row-l">CX0873 SFO→HKG · 17/08</span><span class="row-r g">cash ~$2 376 ✅ · Réf. E5RLF4</span></div>
+            <div class="row"><span class="row-l" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px">Transport sur place</span><span class="row-r"></span></div>
+            <div class="row"><span class="row-l">Essence Florida</span><span class="row-r o">~$200–300 estimatif</span></div>
+            <div class="row"><span class="row-l">Péages Florida (TollPass)</span><span class="row-r o">~$50–100 estimatif</span></div>
+            <div class="row" style="padding-top:9px;border-top:1px solid var(--border)">
+              <span class="row-l" style="font-weight:700">Total USA connu</span>
+              <span class="row-r" style="font-weight:800;color:var(--text)">~6 850 €</span>
+            </div>
+            <div class="row"><span class="row-l" style="padding-left:10px">— dont payé</span><span class="row-r g">~6 071 € ✅</span></div>
+            <div class="row"><span class="row-l" style="padding-left:10px">— dont à payer</span><span class="row-r r">~770 € ⚠️</span></div>
+          </div>
+          <div class="hotel-actions">
+            <a href="https://www.booking.com" target="_blank" class="step-btn btn-warn">⚠️ Payer Miami Beach</a>
+            <a href="https://everglades.com" target="_blank" class="step-btn tbuy">🎫 Acheter Everglades</a>
+          </div>
+        </div>
+
+        <!-- ── GLOBAL DASHBOARD ── -->
+        <div class="hotel-card" style="border-color:rgba(108,143,255,0.35);background:linear-gradient(145deg,#161b3a 0%,#14102e 100%)">
+          <div style="padding:18px 16px 14px">
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 12px;border:1px solid rgba(249,199,79,0.15)">
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">🇫🇷 France</div>
+                <div style="font-size:20px;font-weight:800;color:var(--text)">~5 847 €</div>
+                <div style="font-size:10px;color:var(--green);margin-top:2px">✅ Tout payé</div>
+              </div>
+              <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 12px;border:1px solid rgba(108,143,255,0.15)">
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">🇺🇸 États-Unis</div>
+                <div style="font-size:20px;font-weight:800;color:var(--text)">~6 850 €</div>
+                <div style="font-size:10px;color:var(--red);margin-top:2px">~770 € restant ⚠️</div>
+              </div>
+            </div>
+            <div style="text-align:center;margin-bottom:14px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:0.5px">TOTAL GLOBAL · Jay + Wa + Mya</div>
+              <div style="font-size:36px;font-weight:800;color:var(--text);letter-spacing:-1px">≈ 12 694 €</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">hors hôtels non réservés · hors repas · hors activités TBD</div>
+            </div>
+            <div style="margin-bottom:5px">
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px"><span>Payé</span><span>94% réglé</span></div>
+              <div style="height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:94%;background:linear-gradient(90deg,#06b88a 0%,#6c8fff 100%);border-radius:4px"></div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+              <div><div style="font-size:13px;font-weight:800;color:var(--green)">≈ 11 924 €</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Payé ✅</div></div>
+              <div style="text-align:right"><div style="font-size:13px;font-weight:800;color:var(--red)">~770 €</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Reste à payer</div></div>
+            </div>
+            <div style="background:rgba(224,80,96,0.1);border:1px solid rgba(224,80,96,0.3);border-radius:9px;padding:9px 11px;font-size:12px;color:var(--red);line-height:1.5">
+              ⚠️ <strong>Urgent :</strong> ~460 € Miami Beach (USD 501,01 · Booking.com · réf. 5658739045) + ~113 € fees Riu Plaza SF + ~197 € Hyatt Regency MCO (sur place 12/08)
+            </div>
+          </div>
+          <div style="padding:0 16px 14px">
+            <a href="https://www.booking.com" target="_blank" class="step-btn btn-warn" style="width:100%;justify-content:center;box-sizing:border-box">⚠️ Payer Miami Beach sur Booking.com</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="btn-sejours" onclick="showTab('sejours')">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Séjours
+    </button>
+    <button class="nav-btn" id="btn-map" onclick="showTab('map')">
+      <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+      Carte
+    </button>
+    <button class="nav-btn" id="btn-hotels" onclick="showTab('hotels')">
+      <svg viewBox="0 0 24 24"><path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/></svg>
+      Hôtels
+    </button>
+    <button class="nav-btn" id="btn-tickets" onclick="showTab('tickets')">
+      <svg viewBox="0 0 24 24"><path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.89 1.99 2s-.89 2-1.99 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-2-1.46c-1.19.69-2 1.99-2 3.46s.81 2.77 2 3.46V18H4v-2.54c1.19-.69 2-1.99 2-3.46 0-1.48-.8-2.77-1.99-3.46L4 6h16v2.54z"/></svg>
+      Tickets
+    </button>
+    <button class="nav-btn" id="btn-vols" onclick="showTab('vols')">
+      <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+      Vols
+    </button>
+    <button class="nav-btn" id="btn-budget" onclick="showTab('budget')">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      Budget
+    </button>
+  </nav>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DONNÉES SÉJOURS — JOUR PAR JOUR
+// ═══════════════════════════════════════════
+const HOTEL_ORL = '2111 Flagler Ave, Winter Garden FL 34787';
+const HOTEL_ORL_MAPS = 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787';
+const EPCOT_MAPS = 'https://maps.google.com/?q=EPCOT+200+Epcot+Center+Dr+Lake+Buena+Vista+FL';
+const MK_MAPS = 'https://maps.google.com/?q=Magic+Kingdom+1180+Seven+Seas+Dr+Lake+Buena+Vista+FL';
+const MIAMI_MAPS = 'https://maps.google.com/?q=1330+Ocean+Drive+Miami+Beach+FL+33139';
+
+const destinations = [
+  // ── 3 AOÛT : ARRIVÉE ──────────────────────
+  {
+    id: 'arr-orlando', emoji: '✈️',
+    title: 'Arrivée Orlando', sub: 'Vol · Installation hôtel',
+    dates: '3 août', days: [3], group: '🏰 Orlando', status: 'ok', statusText: '~22h00',
+    steps: [
+      { time: '16:40', name: 'Décollage Paris CDG',
+        address: 'Terminal 2E, Aéroport Charles de Gaulle',
+        maps: 'https://maps.google.com/?q=CDG+Terminal+2E+France',
+        note: 'AF0096 · Réf. YCG6RA' },
+      { time: '20:25', name: 'Atterrissage Orlando MCO',
+        address: 'Orlando International Airport, FL 32827',
+        maps: 'https://maps.google.com/?q=Orlando+International+Airport+FL',
+        note: 'Récupération bagages puis → Enterprise Rent-A-Car' },
+      { time: '21:00 · Récupération voiture', name: '🚗 Enterprise Rent-A-Car — MCO',
+        address: '1 Jeff Fuqua Blvd, Orlando FL 32827',
+        maps: 'https://maps.google.com/?q=Enterprise+Rent-A-Car+Orlando+International+Airport+FL',
+        note: '1. Suivre panneaux "Rental Car" à la sortie de l\'arrivée\n2. Enterprise : Niveau 1 terminaux A/B · Niveau 4 terminal C\n3. Comptoir : signer le contrat · demander le TollPass (péages FL)\n4. Voiture : parking Niveau 1 en face des terminaux — accessible à pied\nRéf. 2125932927 · Chevrolet Equinox · Jérome Gavinet',
+        phone: 'tel:+18449510601', phoneLabel: '+1 844-951-0601' },
+      { time: '~22h00', name: 'Check-in Residence Inn Flamingo Crossings',
+        address: HOTEL_ORL,
+        maps: HOTEL_ORL_MAPS,
+        note: 'Installation · coucher 23h-minuit\nAucun programme — nuit de récupération',
+        phone: 'tel:+14079933233', phoneLabel: '+1 407 993 3233' },
+    ]
+  },
+
+  // ── 4 AOÛT : EPCOT ────────────────────────
+  {
+    id: 'epcot', emoji: '🚀',
+    title: 'EPCOT', sub: 'Journée complète · Future World + World Showcase',
+    dates: '4 août', days: [4], group: '🏰 Orlando', status: 'ok', statusText: 'Programme prêt',
+    steps: [
+      { time: '9h00–9h30', name: 'Départ hôtel → EPCOT',
+        address: 'Trajet ~10 min depuis ' + HOTEL_ORL,
+        maps: 'https://maps.google.com/maps/dir/2111+Flagler+Ave+Winter+Garden+FL/200+Epcot+Center+Dr+Lake+Buena+Vista+FL',
+        note: '' },
+      { time: '9h30 · Matin', name: 'EPCOT — Future World',
+        address: '200 Epcot Center Dr, Lake Buena Vista FL 32821',
+        maps: EPCOT_MAPS,
+        note: 'Spaceship Earth ✅ (lent, assis) · Frozen Ever After ✅ (bateau doux) · Remy\'s Ratatouille Adventure ⚠️ (spinning léger — peut être désorientant) · Living with the Land ✅ (bateau lent)',
+        tip: '⚡ Lightning Lane : réserver Frozen Ever After + Remy\'s dès l\'ouverture des créneaux (3 jours avant) via app My Disney Experience' },
+      { time: '13h00–14h00', name: 'Déjeuner — World Showcase',
+        address: '200 Epcot Center Dr, Lake Buena Vista FL 32821',
+        maps: EPCOT_MAPS,
+        note: '🇯🇵 Japon · Katsura Grill\n🇫🇷 France · Crêperie française' },
+      { time: '14h00–17h30', name: 'World Showcase à pied',
+        address: '200 Epcot Center Dr, Lake Buena Vista FL 32821',
+        maps: EPCOT_MAPS,
+        note: 'Nemo & Friends ✅ (bateau) · Journey Into Imagination ✅ (doux) · Kidcot Fun Stops ✅' },
+      { time: '17h30–18h00', name: 'Retour hôtel',
+        address: HOTEL_ORL, maps: HOTEL_ORL_MAPS,
+        note: 'Luminous (feux d\'artifice) non indispensable si fatigue' },
+    ]
+  },
+
+  // ── 5 AOÛT : REPOS ────────────────────────
+  {
+    id: 'repos', emoji: '🏊',
+    title: 'Repos complet', sub: 'Piscine · Town Center · 0 voiture',
+    dates: '5 août', days: [5], group: '🏰 Orlando', status: 'ok', statusText: 'Pas de voiture',
+    steps: [
+      { time: 'Matin', name: 'Piscine hôtel + brunch tranquille',
+        address: HOTEL_ORL, maps: HOTEL_ORL_MAPS,
+        note: 'Aucun trajet en voiture toute la journée' },
+      { time: 'Après-midi', name: 'Flamingo Crossings Town Center',
+        address: '12555 Regency Village Dr, Winter Garden FL 34787',
+        maps: 'https://maps.google.com/?q=Flamingo+Crossings+Town+Center+Winter+Garden+FL',
+        note: 'À pied depuis l\'hôtel · restaurants · shopping · détente' },
+      { time: 'Soir', name: 'Dîner simple · coucher raisonnable',
+        address: HOTEL_ORL, maps: HOTEL_ORL_MAPS,
+        note: 'Journée Magic Kingdom demain — départ 7h45' },
+    ]
+  },
+
+  // ── 6 AOÛT : MAGIC KINGDOM ────────────────
+  {
+    id: 'mk', emoji: '🏰',
+    title: 'Magic Kingdom', sub: 'Journée complète · Rope Drop',
+    dates: '6 août', days: [6], group: '🏰 Orlando', status: 'ok', statusText: 'Programme prêt',
+    steps: [
+      { time: '7h45', name: 'Départ hôtel (arriver 8h · rope drop)',
+        address: 'Trajet ~20 min depuis ' + HOTEL_ORL,
+        maps: 'https://maps.google.com/maps/dir/2111+Flagler+Ave+Winter+Garden+FL/1180+Seven+Seas+Dr+Lake+Buena+Vista+FL',
+        note: '' },
+      { time: '8h00 · Rope Drop', name: 'Magic Kingdom — ouverture',
+        address: '1180 Seven Seas Dr, Lake Buena Vista FL 32830',
+        maps: MK_MAPS,
+        note: '🎯 Priorité 1 : Seven Dwarfs Mine Train ⚠️ (montagnes russes légères — doux mais secousses)\n🎯 Priorité 2 : Peter Pan\'s Flight ✅ (dark ride suspendu, lent)',
+        tip: '⚡ Lightning Lane Seven Dwarfs : réserver dès 7h heure locale (3 jours avant) — se vend très vite même hors haute saison' },
+      { time: 'Matin', name: 'Attractions matin',
+        address: '1180 Seven Seas Dr, Lake Buena Vista FL 32830',
+        maps: MK_MAPS,
+        note: 'It\'s a Small World ✅ · Jungle Cruise ✅ · Winnie the Pooh ✅ · Carousel ✅ · Buzz Lightyear ✅ (tir laser assis)' },
+      { time: '12h30–13h30', name: 'Déjeuner',
+        address: '1180 Seven Seas Dr, Lake Buena Vista FL 32830',
+        maps: MK_MAPS,
+        note: 'Columbia Harbour House\nou Pecos Bill Tall Tale Inn & Café' },
+      { time: '14h00–17h00', name: 'Attractions après-midi',
+        address: '1180 Seven Seas Dr, Lake Buena Vista FL 32830',
+        maps: MK_MAPS,
+        note: 'Monsters Inc. Laugh Floor ✅ (spectacle assis) · Enchanted Tiki Room ✅ · Mad Tea Party ⚠️ (tasses tournantes — éviter si sensible) · Pirates of the Caribbean ✅ (dark ride lent)' },
+      { time: 'Soirée', name: 'Parade & feux d\'artifice (Happily Ever After)',
+        address: '1180 Seven Seas Dr, Lake Buena Vista FL 32830',
+        maps: MK_MAPS,
+        note: 'Si énergie disponible ✨' },
+    ]
+  },
+
+  // ── 7 AOÛT : ROUTE MIAMI ──────────────────
+  {
+    id: 'route-miami', emoji: '🛍',
+    title: 'Route Orlando → Miami Beach', sub: 'Arrêt Sawgrass Mills · check-in soir',
+    dates: '7 août', days: [7], group: '🌴 Miami', status: 'ok', statusText: 'Départ 8h30',
+    steps: [
+      { time: '8h30–9h00', name: 'Petit-déj · check-out · départ hôtel',
+        address: HOTEL_ORL, maps: HOTEL_ORL_MAPS,
+        note: 'Check-out avant 11h00' },
+      { time: 'Arrêt en route', name: 'Sawgrass Mills Outlet',
+        address: '12801 W Sunrise Blvd, Sunrise FL 33323',
+        maps: 'https://maps.google.com/?q=12801+W+Sunrise+Blvd+Sunrise+FL+33323',
+        note: '350+ boutiques · directement sur le trajet via Florida Turnpike / I-595\n0 détour · prévoir large en temps',
+        phone: 'tel:+19548462350', phoneLabel: '(954) 846-2350' },
+      { time: 'Fin d\'après-midi · 17h00+', name: 'Arrivée Miami Beach · check-in',
+        address: '1330 Ocean Drive, Miami Beach FL 33139',
+        maps: MIAMI_MAPS,
+        note: 'Check-in à partir de 17h00 · Code accès : 1588\n⚠️ USD 501,01 restant à payer sur Booking.com',
+        warnBtn: true },
+    ]
+  },
+
+  // ── 8 AOÛT : LITTLE HAVANA + PLAGE ────────
+  {
+    id: 'miami-day', emoji: '☀️',
+    title: 'Miami Beach · Little Havana', sub: 'Calle Ocho → plage → Art Déco',
+    dates: '8 août', days: [8], group: '🌴 Miami', status: 'ok', statusText: 'Programme prêt',
+    steps: [
+      { time: '9h00', name: 'Départ hôtel → Little Havana',
+        address: 'Trajet ~25 min depuis 1330 Ocean Drive',
+        maps: 'https://maps.google.com/maps/dir/1330+Ocean+Drive+Miami+Beach+FL/1444+SW+8th+St+Miami+FL',
+        note: 'Seul trajet en voiture de la journée' },
+      { time: '9h30–11h30', name: 'Domino Park — Little Havana',
+        address: '1444 SW 8th St, Miami FL 33135',
+        maps: 'https://maps.google.com/?q=1444+SW+8th+St+Miami+FL+33135',
+        note: 'Domino Park · murals Calle Ocho · boutiques' },
+      { time: '~11h30', name: 'Déjeuner · Versailles Restaurant',
+        address: '3555 SW 8th St, Miami FL 33135',
+        maps: 'https://maps.google.com/?q=3555+SW+8th+St+Miami+FL+33135',
+        note: 'Cuisine cubaine · institution de Miami' },
+      { time: '~12h00', name: 'Retour hôtel · voiture garée',
+        address: '1330 Ocean Drive, Miami Beach FL 33139',
+        maps: MIAMI_MAPS,
+        note: 'Voiture garée jusqu\'au lendemain matin' },
+      { time: '12h00–16h00', name: 'Plage & piscine',
+        address: 'Ocean Drive Beach, Miami Beach FL',
+        maps: 'https://maps.google.com/?q=Ocean+Drive+Beach+Miami+Beach+FL',
+        note: '' },
+      { time: 'Coucher de soleil', name: 'Lincoln Road Mall → Ocean Drive',
+        address: 'Lincoln Rd, Miami Beach FL 33139',
+        maps: 'https://maps.google.com/?q=Lincoln+Rd+Miami+Beach+FL+33139',
+        note: '~10 min à pied depuis l\'hôtel\nOcean Drive / Art Déco District (~15-20 min à pied)\nDîner dans le quartier Art Déco' },
+    ]
+  },
+
+  // ── 9 AOÛT : EVERGLADES ───────────────────
+  {
+    id: 'everglades', emoji: '🌿',
+    title: 'Everglades', sub: 'Journée complète · 5 étapes',
+    dates: '9 août', days: [9], group: '🌴 Miami', status: 'ok', statusText: 'Programme prêt',
+    steps: [
+      { time: '8h00 · Check-out', name: 'Départ Miami Beach',
+        address: '1330 Ocean Drive, Miami Beach FL 33139',
+        maps: MIAMI_MAPS,
+        note: 'Check-out avant 10h00 · départ recommandé 8h00' },
+      { time: '~9h00 · Étape A', name: 'Ernest F. Coe Visitor Center',
+        address: '40001 State Rd 9336, Homestead FL 33034',
+        maps: 'https://maps.google.com/?q=40001+State+Rd+9336+Homestead+FL+33034',
+        note: 'Entrée du parc · ~35$/véhicule · valable 7 jours\nCarte acceptée à l\'entrée' },
+      { time: '9h10–10h25 · Étape B', name: 'Royal Palm — Anhinga Trail',
+        address: 'Royal Palm Area, Everglades National Park FL',
+        maps: 'https://maps.google.com/?q=Royal+Palm+Visitor+Center+Everglades+National+Park',
+        note: 'Anhinga Trail (~1h) + Gumbo Limbo (~15 min)\nMeilleure zone d\'observation faune (alligators, oiseaux)' },
+      { time: '10h45–11h05 · Étape C', name: 'Pahayokee Overlook',
+        address: 'Pahayokee Overlook, Everglades National Park FL',
+        maps: 'https://maps.google.com/?q=Pahayokee+Overlook+Everglades+National+Park+FL',
+        note: 'Vue sur sawgrass prairie · ~20 min' },
+      { time: '~11h40–13h15 · Étape D', name: 'Everglades Alligator Farm',
+        address: '40351 SW 192nd Ave, Homestead FL 33034',
+        maps: 'https://maps.google.com/?q=40351+SW+192nd+Ave+Homestead+FL+33034',
+        note: 'Airboat 12h20 (départs fixes à :20) · Spectacle nourrissage 12h\nCasques fournis · on se mouille 🚤\n⚠️ Billet combo à acheter en ligne à l\'avance' },
+      { time: '~13h30 · Étape E', name: 'Robert Is Here',
+        address: '19200 SW 344th St, Homestead FL 34990',
+        maps: 'https://maps.google.com/?q=19200+SW+344th+St+Homestead+FL+34990',
+        note: 'Fruits tropicaux · milkshakes · ~30 min' },
+      { time: '~14h00 · Option 1', name: 'Route → Jupiter FL',
+        address: 'Jupiter FL',
+        maps: 'https://maps.google.com/maps/dir/19200+SW+344th+St+Homestead+FL/Jupiter+FL',
+        note: '~2h10 depuis Robert Is Here\nKSC le lendemain : ~2h10 de route\n⚠️ Hôtel non encore réservé' },
+      { time: '~14h00 · Option 2 ✅ Recommandé', name: 'Route → Titusville FL',
+        address: 'Titusville FL',
+        maps: 'https://maps.google.com/maps/dir/19200+SW+344th+St+Homestead+FL/Titusville+FL',
+        note: '~3h depuis Robert Is Here\nKSC le lendemain : ~15 min ✅ (juste à côté)\n⚠️ Hôtel non encore réservé' },
+    ]
+  },
+
+  // ── 10 AOÛT : KENNEDY SPACE CENTER ────────
+  {
+    id: 'ksc', emoji: '🛸',
+    title: 'Kennedy Space Center', sub: '9h → 17h · programme complet',
+    dates: '10 août', days: [10], group: '🏰 Orlando', status: 'ok', statusText: 'Programme bouclé',
+    steps: [
+      { time: '⚠️ Avant J-1', name: '🎫 Vérifier billet KSC — Taobao/Xianyu',
+        address: '',
+        maps: '',
+        note: 'Vérifier si le billet est un QR code nominatif daté ou un voucher échangeable au guichet\n⚠️ Si voucher → l\'échanger au guichet avant d\'entrer le 10 août\nSi arrivée après 9h (bus tour manqué) → adapter : Gateway expositions/artefacts sans Spaceport KSC, ou film IMAX au choix' },
+      { time: '8h30', name: '🚗 Parking KSC',
+        address: 'Space Commerce Way, Merritt Island FL 32953',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: '~15 min depuis Titusville · ~2h10 depuis Jupiter\nFermeture 17h00 — suivre le programme pour tout voir' },
+      { time: '9h00', name: '🚌 Bus Tour — Apollo/Saturn V Center & The Gantry at LC-39',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: 'À faire EN PREMIER dès l\'ouverture · bus toutes les ~15 min depuis l\'entrée\nSaturn V Center : la plus grande fusée ayant jamais volé\nThe Gantry LC-39 : site de lancement Apollo & Shuttle — vue spectaculaire' },
+      { time: '11h30', name: '🍽 Déjeuner — Visitor Complex',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: '' },
+      { time: '12h30', name: '🚀 Space Shuttle Atlantis',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: 'Exposition uniquement\nShuttle Launch Experience non inclus (sensations trop fortes)' },
+      { time: '13h45', name: '🌹 Rocket Garden',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: 'Jardin extérieur · fusées et capsules originales à taille réelle en plein air' },
+      { time: '14h15', name: '🧑‍🚀 Heroes & Legends · US Astronaut Hall of Fame',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: '' },
+      { time: '15h15', name: '🌌 Gateway: The Deep Space Launch Complex',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: 'Expositions et artefacts · puis Spaceport KSC (sensations fortes)' },
+      { time: '16h15', name: '🎬 Film IMAX',
+        address: 'Kennedy Space Center Visitor Complex',
+        maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Space+Commerce+Way+Merritt+Island+FL+32953',
+        note: 'Assis · sans mouvement' },
+      { time: '17h00', name: '🚗 Sortie · Route Orlando',
+        address: 'Orlando FL (~50 min depuis KSC)',
+        maps: 'https://maps.google.com/maps/dir/Kennedy+Space+Center+Visitor+Complex+Merritt+Island+FL/Orlando+FL',
+        note: 'Check-in hôtel en soirée\n⚠️ Hôtel Orlando non encore réservé' },
+    ]
+  },
+
+  // ── 11 AOÛT : ORLANDO REPOS ────────────────
+  {
+    id: 'orlando2-d11', emoji: '🛌',
+    title: 'Orlando — repos', sub: 'Hébergement à confirmer · proche MCO',
+    dates: '11 août', days: [11], group: '🏰 Orlando', status: 'tbd', statusText: 'À confirmer',
+    steps: [
+      { time: '11 août', name: 'Hébergement à confirmer',
+        address: 'Orlando, FL — de préférence proche MCO',
+        maps: 'https://maps.google.com/?q=Hotels+near+Orlando+International+Airport',
+        note: '⚠️ Hébergement non encore réservé · choisir proche MCO\nvol UA2802 MCO→SFO le 13 août à 09:45' },
+    ]
+  },
+
+  // ── 12 AOÛT : RESTITUTION + HYATT ──────────
+  {
+    id: 'orlando2-d12', emoji: '🏢',
+    title: 'Restitution voiture · Hyatt Regency', sub: 'Enterprise 21h00 · Hyatt MCO',
+    dates: '12 août', days: [12], group: '🏰 Orlando', status: 'ok', statusText: '✅ Hyatt confirmé',
+    steps: [
+      { time: '12 août · 21h00', name: '🚗 Restitution voiture — Enterprise MCO',
+        address: '1 Jeff Fuqua Blvd, Orlando FL 32827',
+        maps: 'https://maps.google.com/?q=Enterprise+Rent-A-Car+Orlando+International+Airport+FL',
+        note: '1. Suivre panneaux "Car Return" à MCO\n2. Garer zone Enterprise · remettre clés au comptoir ✅\nAgence ouverte le soir — pas de key drop nécessaire\nRéf. 2125932927 · Tél. +1 844-951-0601' },
+      { time: '12 août · soir', name: '🏢 Hyatt Regency Orlando Airport',
+        address: '9300 Jeff Fuqua Blvd, Orlando FL 32827',
+        maps: 'https://maps.google.com/?q=Hyatt+Regency+Orlando+International+Airport+9300+Jeff+Fuqua+Blvd+Orlando+FL+32827',
+        note: 'Check-in à partir de 16h00 · chambre 2 Grands Lits Queen\n~€197 / $223,88 à payer sur place · Réf. 5163.183.769 · Code: 9660\n⚠️ Check-out avant 11h00 le 13 août → vol MCO 09:45',
+        phone: 'tel:+14078251234', phoneLabel: '+1 407 825 1234' },
+    ]
+  },
+
+  // ── 13 AOÛT : SF J1 ───────────────────────
+  {
+    id: 'sf-d13', emoji: '✈️',
+    title: 'Arrivée SF · Alcatraz', sub: 'Vol MCO→SFO · Night Tour',
+    dates: '13 août', days: [13], group: '🌁 San Francisco', status: 'ok', statusText: 'Programme bouclé',
+    steps: [
+      { time: '13 août · 09:45', name: '✈️ Décollage MCO → San Francisco',
+        address: 'Orlando International Airport, Terminal B',
+        maps: 'https://maps.google.com/?q=Orlando+International+Airport+Terminal+B',
+        note: 'UA2802 · Economy Plus® · B737 MAX 9 · 5h49 · navette depuis zone Rental Car vers Terminal B · Réf. HWK8RG · #30108766' },
+      { time: '13 août · 12:34', name: '✈️ Arrivée SFO — Terminal 3',
+        address: 'San Francisco International Airport, CA 94128',
+        maps: 'https://maps.google.com/?q=San+Francisco+International+Airport',
+        note: 'Récupérer bagages · Uber XL vers Fisherman\'s Wharf (~35 min, ~$65)' },
+      { time: '13 août · ~14h30', name: '🏨 Check-in Riu Plaza',
+        address: '2600 Mason St, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=2600+Mason+St+San+Francisco+CA+94133',
+        note: 'Check-in standard 15h · appeler avant si besoin early check-in : +1 415-362-5500\n3 nuits B&B · USD 879,18 prépayé · Réf. WRC3QMRG · + USD 123,58 fees à régler à l\'hôtel' },
+      { time: '13 août · 16h00', name: '🛶 Ferry Building — marche & snack',
+        address: '1 Ferry Building, San Francisco CA 94111',
+        maps: 'https://maps.google.com/?q=Ferry+Building+San+Francisco+CA+94111',
+        note: 'À pied depuis l\'hôtel (~20 min) · marché artisanal, bouchées sur place\nRetour Pier 33 à pied (8 min depuis Ferry Building)' },
+      { time: '13 août · 18h10', name: '🚶 En route Pier 33 (à pied)',
+        address: 'Pier 33, San Francisco CA 94111',
+        maps: 'https://maps.google.com/?q=Pier+33+San+Francisco+CA',
+        note: '8 min à pied depuis le Ferry Building · embarquement 18h15' },
+      { time: '13 août · 18h30', name: '🏝 Alcatraz Night Tour ✅',
+        address: 'Pier 33, San Francisco CA 94111',
+        maps: 'https://maps.google.com/?q=Pier+33+San+Francisco+CA',
+        note: 'Réf. #77111467 · 2 adultes + 1 enfant · inclus dans $154,15\nRetour ferry ~21h30 · prévoir veste (vent + froid en soirée)' },
+    ]
+  },
+
+  // ── 14 AOÛT : SF J2 ───────────────────────
+  {
+    id: 'sf-d14', emoji: '🌉',
+    title: 'Golden Gate · Sausalito · North Beach', sub: 'Ferry · pont · village',
+    dates: '14 août', days: [14], group: '🌁 San Francisco', status: 'ok', statusText: 'Programme bouclé',
+    steps: [
+      { time: '14 août · 10h00', name: '🚌 Muni bus 28 → Golden Gate',
+        address: 'Crissy Field, San Francisco CA',
+        maps: 'https://maps.google.com/?q=Crissy+Field+San+Francisco+CA',
+        note: 'Bus 28 depuis Fisherman\'s Wharf (~30 min) · descendre East Beach\nPas besoin de traverser le pont — vue panoramique depuis Crissy Field / Welcome Center' },
+      { time: '14 août · 10h30', name: '🌉 Golden Gate — marche jusqu\'au 1er pylône',
+        address: 'Golden Gate Bridge Welcome Center, San Francisco CA',
+        maps: 'https://maps.google.com/?q=Golden+Gate+Bridge+Welcome+Center+San+Francisco',
+        note: 'Aller-retour depuis le Welcome Center jusqu\'au 1er pylône (côté SF) · ~45 min\nAttention au vent sur le pont — prévoir vestes' },
+      { time: '14 août · 11h30', name: '🚗 Uber → Sausalito',
+        address: 'Sausalito Ferry Terminal, Sausalito CA 94965',
+        maps: 'https://maps.google.com/?q=Sausalito+Ferry+Terminal+CA',
+        note: '~15 min depuis le Golden Gate Welcome Center' },
+      { time: '14 août · 12h00', name: '🍽 Déjeuner Sausalito — bord de l\'eau',
+        address: 'Sausalito Waterfront, CA 94965',
+        maps: 'https://maps.google.com/?q=Sausalito+Waterfront+CA',
+        note: 'Village pittoresque · restaurants face à la baie · promenade le long des docks' },
+      { time: '14 août · 13h30', name: '⛴ Ferry Blue & Gold Fleet → Pier 39',
+        address: 'Sausalito Ferry Terminal, CA 94965',
+        maps: 'https://maps.google.com/?q=Sausalito+Ferry+Terminal+CA',
+        note: '30 min de traversée · $14,25/adulte · $8,50/enfant · vue sur la baie et Alcatraz\nArrivée Pier 39 ~14h00' },
+      { time: '14 août · 14h30', name: '🗼 Coit Tower',
+        address: '1 Telegraph Hill Blvd, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=Coit+Tower+1+Telegraph+Hill+Blvd+San+Francisco+CA',
+        note: 'À pied depuis Pier 39 (~15 min) · Fresques murales 1934 au rez-de-chaussée : gratuites\nAscenseur panoramique $10/adulte si envie · vue 360°' },
+      { time: '14 août · 15h30', name: '📚 City Lights Bookstore + Washington Square',
+        address: '261 Columbus Ave, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=City+Lights+Bookstore+261+Columbus+Ave+San+Francisco+CA',
+        note: 'Librairie historique de North Beach · puis Washington Square Park (détente)' },
+      { time: '14 août · 17h00', name: '🍝 Dîner North Beach — retour hôtel à pied',
+        address: 'North Beach, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=North+Beach+San+Francisco+CA',
+        note: 'Quartier italo-américain · nombreux restaurants · ~20 min à pied jusqu\'à l\'hôtel' },
+    ]
+  },
+
+  // ── 15 AOÛT : SF J3 ───────────────────────
+  {
+    id: 'sf-d15', emoji: '🌊',
+    title: 'Lands End · Sutro Baths', sub: 'Falaises · ruines · baie',
+    dates: '15 août', days: [15], group: '🌁 San Francisco', status: 'ok', statusText: 'Programme bouclé',
+    steps: [
+      { time: '15 août · matin', name: '🦭 Matinée libre — Pier 39 · Ghirardelli ou repos',
+        address: 'Pier 39, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=Pier+39+San+Francisco+CA',
+        note: 'Otaries à Pier 39 (K-Dock) · chocolat Ghirardelli Square · ou matinée tranquille à l\'hôtel' },
+      { time: '15 août · 14h00', name: '🚗 Uber → Lands End',
+        address: 'Lands End, San Francisco CA 94121',
+        maps: 'https://maps.google.com/?q=Lands+End+San+Francisco+CA',
+        note: '~20 min depuis l\'hôtel · La brume se lève en début d\'après-midi en août → vues optimales\nStationnement Merrie Way parking si nécessaire' },
+      { time: '15 août · 14h30', name: '🌊 Sentier Lands End + Ruines Sutro Baths',
+        address: 'Sutro Baths, 1004 Point Lobos Ave, San Francisco CA 94121',
+        maps: 'https://maps.google.com/?q=Sutro+Baths+1004+Point+Lobos+Ave+San+Francisco+CA',
+        note: '~2h · sentier des falaises avec vue sur Golden Gate et Marin Headlands\nRuines des Sutro Baths (1896) — accès libre, plage rocheuse en contrebas\nChaussures de marche recommandées' },
+      { time: '15 août · 16h30', name: '🚌 Muni retour · dîner quartier',
+        address: 'Point Lobos Ave, San Francisco CA 94121',
+        maps: 'https://maps.google.com/?q=Point+Lobos+Ave+San+Francisco+CA',
+        note: 'Bus 38 ou 5 depuis Point Lobos → Fisherman\'s Wharf ou Tenderloin\nDîner selon envie · soirée libre' },
+    ]
+  },
+
+  // ── 16 AOÛT : SF J4 ───────────────────────
+  {
+    id: 'sf-d16', emoji: '🔬',
+    title: 'Exploratorium · Départ', sub: 'Dernier jour · vol CX0873',
+    dates: '16 août', days: [16], group: '🌁 San Francisco', status: 'ok', statusText: 'Programme bouclé',
+    steps: [
+      { time: '16 août · ~09h00', name: '🍳 Petit-déjeuner inclus + bagages consigne',
+        address: '2600 Mason St, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=2600+Mason+St+San+Francisco+CA+94133',
+        note: 'Check-out obligatoire · laisser bagages à la réception (luggage hold)\n⚠️ Départ hôtel pour SFO à ~22h00 ce soir' },
+      { time: '16 août · 10h00', name: '🔬 Exploratorium ✅',
+        address: 'Pier 15, San Francisco CA 94111',
+        maps: 'https://maps.google.com/?q=Exploratorium+Pier+15+San+Francisco+CA',
+        note: 'À pied depuis l\'hôtel (~15 min) · musée des sciences interactif — idéal pour Mya\n~3h sur place · 400+ expériences mains dans la masse\nDéjeuner au SeaGlass Restaurant (vue sur la baie, Pier 15)' },
+      { time: '16 août · 13h30', name: '🌉 Embarcadero — balade & emplettes',
+        address: 'Embarcadero, San Francisco CA 94105',
+        maps: 'https://maps.google.com/?q=Embarcadero+San+Francisco+CA',
+        note: 'Promenade le long du front de mer · Pier 39, souvenirs, ou repos jusqu\'à l\'heure du dîner' },
+      { time: '16 août · ~18h00', name: '🍽 Dernier dîner San Francisco',
+        address: 'Fisherman\'s Wharf, San Francisco CA 94133',
+        maps: 'https://maps.google.com/?q=Fisherman\'s+Wharf+San+Francisco+CA',
+        note: 'Récupérer les bagages à l\'hôtel · dernier repas · temps libre avant Uber' },
+      { time: '16 août · 22h00', name: '🚗 Uber XL → SFO',
+        address: 'San Francisco International Airport, CA 94128',
+        maps: 'https://maps.google.com/?q=San+Francisco+International+Airport',
+        note: '⚠️ Vol CX0873 SFO→HKG le 17 août à 01h20 · Terminal international\nBoarder au plus tard 00h00 · prévoir ~45 min pour l\'aéroport\nPremium Éco · 2 bagages/personne · Réf. E5RLF4' },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════
+// DONNÉES CARTE — PAR JOUR
+// ═══════════════════════════════════════════
+const DAY_PROGRAMS = [
+  {
+    id: 'all', label: '🌎', title: 'Vue générale',
+    color: '#6c8fff', special: 'all', stops: []
+  },
+  {
+    id: 'd03', label: '3/08', title: '3 août — Arrivée Orlando', color: '#6c8fff',
+    stops: [
+      { lat: 28.4294, lng: -81.3088, name: '✈️ Atterrissage Orlando MCO', addr: 'Orlando International Airport, FL 32827', maps: 'https://maps.google.com/?q=Orlando+International+Airport+FL', nextMode: 'car', nextDur: '~25 min' },
+      { lat: 28.397,  lng: -81.601,  name: '🏨 Residence Inn Flamingo Crossings', addr: '2111 Flagler Ave, Winter Garden FL 34787', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787' },
+    ]
+  },
+  {
+    id: 'd04', label: '4/08', title: '4 août — EPCOT', color: '#f9c74f',
+    stops: [
+      { lat: 28.397,  lng: -81.601,  name: '🏨 Hôtel — départ', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'car', nextDur: '~15 min' },
+      { lat: 28.3748, lng: -81.5494, name: '🚀 EPCOT', addr: '200 Epcot Center Dr, Lake Buena Vista FL', maps: 'https://maps.google.com/?q=EPCOT+200+Epcot+Center+Dr+Lake+Buena+Vista+FL' },
+    ]
+  },
+  {
+    id: 'd05', label: '5/08', title: '5 août — Repos', color: '#06b88a',
+    stops: [
+      { lat: 28.397,  lng: -81.601,  name: '🏊 Hôtel — repos & piscine', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'walk', nextDur: '~5 min' },
+      { lat: 28.3940, lng: -81.5996, name: '🛍 Flamingo Crossings Town Center', addr: '12555 Regency Village Dr, Winter Garden FL', maps: 'https://maps.google.com/?q=Flamingo+Crossings+Town+Center+Winter+Garden+FL' },
+    ]
+  },
+  {
+    id: 'd06', label: '6/08', title: '6 août — Magic Kingdom', color: '#f9c74f',
+    stops: [
+      { lat: 28.397,  lng: -81.601,  name: '🏨 Hôtel — départ', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'car', nextDur: '~15 min' },
+      { lat: 28.4177, lng: -81.5812, name: '🏰 Magic Kingdom', addr: '1180 Seven Seas Dr, Lake Buena Vista FL', maps: 'https://maps.google.com/?q=Magic+Kingdom+1180+Seven+Seas+Dr+Lake+Buena+Vista+FL' },
+    ]
+  },
+  {
+    id: 'd07', label: '7/08', title: '7 août — Route → Miami Beach', color: '#e8a030',
+    stops: [
+      { lat: 28.397,  lng: -81.601,  name: '🏨 Départ — Winter Garden', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'car', nextDur: '~2h55' },
+      { lat: 26.1495, lng: -80.2567, name: '🛍 Sawgrass Mills Outlet', addr: '12801 W Sunrise Blvd, Sunrise FL 33323', maps: 'https://maps.google.com/?q=12801+W+Sunrise+Blvd+Sunrise+FL+33323', nextMode: 'car', nextDur: '~35 min' },
+      { lat: 25.7628, lng: -80.1300, name: '🏖 The Netherland Miami Beach', addr: '1330 Ocean Drive, Miami Beach FL 33139', maps: 'https://maps.google.com/?q=1330+Ocean+Drive+Miami+Beach+FL+33139' },
+    ]
+  },
+  {
+    id: 'd08', label: '8/08', title: '8 août — Miami · Little Havana', color: '#e8a030',
+    stops: [
+      { lat: 25.7628, lng: -80.1300, name: '🏖 Miami Beach Hotel', addr: '1330 Ocean Drive, Miami Beach FL 33139', maps: 'https://maps.google.com/?q=1330+Ocean+Drive+Miami+Beach+FL+33139', nextMode: 'car', nextDur: '~20 min' },
+      { lat: 25.7645, lng: -80.2256, name: '🎭 Domino Park — Little Havana', addr: '1444 SW 8th St, Miami FL 33135', maps: 'https://maps.google.com/?q=1444+SW+8th+St+Miami+FL+33135', nextMode: 'walk', nextDur: '~7 min' },
+      { lat: 25.7653, lng: -80.2349, name: '🍽 Versailles Restaurant', addr: '3555 SW 8th St, Miami FL 33135', maps: 'https://maps.google.com/?q=3555+SW+8th+St+Miami+FL+33135' },
+    ]
+  },
+  {
+    id: 'd09', label: '9/08', title: '9 août — Everglades', color: '#c084fc',
+    stops: [
+      { lat: 25.7628, lng: -80.1300, name: '🚗 Départ Miami Beach', addr: '1330 Ocean Drive, Miami Beach FL', maps: 'https://maps.google.com/?q=1330+Ocean+Drive+Miami+Beach+FL+33139', nextMode: 'car', nextDur: '~50 min' },
+      { lat: 25.3867, lng: -80.5978, name: 'A — Ernest F. Coe Visitor Center', addr: '40001 State Rd 9336, Homestead FL', maps: 'https://maps.google.com/?q=40001+State+Rd+9336+Homestead+FL+33034', nextMode: 'car', nextDur: '~5 min' },
+      { lat: 25.3891, lng: -80.6098, name: 'B — Royal Palm · Anhinga Trail', addr: 'Royal Palm Area, Everglades National Park', maps: 'https://maps.google.com/?q=Royal+Palm+Visitor+Center+Everglades+National+Park', nextMode: 'car', nextDur: '~30 min' },
+      { lat: 25.4038, lng: -80.7565, name: 'C — Pahayokee Overlook', addr: 'Everglades National Park', maps: 'https://maps.google.com/?q=Pahayokee+Overlook+Everglades+National+Park+FL', nextMode: 'car', nextDur: '~30 min' },
+      { lat: 25.4067, lng: -80.5003, name: 'D — Everglades Alligator Farm', addr: '40351 SW 192nd Ave, Homestead FL', maps: 'https://maps.google.com/?q=40351+SW+192nd+Ave+Homestead+FL+33034', nextMode: 'car', nextDur: '~10 min' },
+      { lat: 25.3530, lng: -80.5010, name: 'E — Robert Is Here', addr: '19200 SW 344th St, Homestead FL', maps: 'https://maps.google.com/?q=19200+SW+344th+St+Homestead+FL+34990' },
+      { lat: 26.9342, lng: -80.0930, name: '① Jupiter · Option 1', addr: '~2h10 depuis Homestead · KSC lendemain : ~2h10', maps: 'https://maps.google.com/?q=Jupiter+FL', optional: true },
+      { lat: 28.6122, lng: -80.8075, name: '② Titusville · Option 2 ✅', addr: '~3h depuis Homestead · KSC lendemain : ~15 min', maps: 'https://maps.google.com/?q=Titusville+FL', optional: true },
+    ]
+  },
+  {
+    id: 'd10', label: '10/08', title: '10 août — Kennedy Space Center', color: '#c084fc',
+    stops: [
+      { lat: 28.5234, lng: -80.6820, name: '🛸 Kennedy Space Center', addr: 'Space Commerce Way, Merritt Island FL 32953', maps: 'https://maps.google.com/?q=Kennedy+Space+Center+Visitor+Complex+Merritt+Island+FL', nextMode: 'car', nextDur: '~50 min' },
+      { lat: 28.4294, lng: -81.3088, name: '🏨 Route Orlando (soir)', addr: 'Orlando FL — hôtel non réservé', maps: 'https://maps.google.com/?q=Hotels+near+Orlando+International+Airport+FL' },
+    ]
+  },
+  {
+    id: 'd13', label: '13/08', title: '13 août — Arrivée SF + Alcatraz', color: '#06b88a',
+    stops: [
+      { lat: 37.6213, lng: -122.3790, name: '✈️ Arrivée SFO · 12h34', addr: 'San Francisco International Airport', maps: 'https://maps.google.com/?q=San+Francisco+International+Airport', nextMode: 'uber', nextDur: '~35 min' },
+      { lat: 37.8062, lng: -122.4168, name: '🏨 Riu Plaza Fisherman\'s Wharf', addr: '2600 Mason St, San Francisco CA 94133', maps: 'https://maps.google.com/?q=2600+Mason+St+San+Francisco+CA+94133', nextMode: 'walk', nextDur: '~18 min' },
+      { lat: 37.7954, lng: -122.3933, name: '🛶 Ferry Building · 16h00', addr: '1 Ferry Building, San Francisco CA', maps: 'https://maps.google.com/?q=Ferry+Building+San+Francisco+CA', nextMode: 'walk', nextDur: '~8 min' },
+      { lat: 37.8071, lng: -122.4131, name: '🏝 Pier 33 — Alcatraz Night Tour · 18h30', addr: 'Pier 33, San Francisco CA 94111', maps: 'https://maps.google.com/?q=Pier+33+San+Francisco+CA' },
+    ]
+  },
+  {
+    id: 'd14', label: '14/08', title: '14 août — Golden Gate + Sausalito + North Beach', color: '#06b88a',
+    stops: [
+      { lat: 37.8038, lng: -122.4683, name: '🌉 Crissy Field · 10h00', addr: 'Crissy Field, San Francisco CA', maps: 'https://maps.google.com/?q=Crissy+Field+San+Francisco+CA', nextMode: 'walk', nextDur: '~15 min' },
+      { lat: 37.8097, lng: -122.4769, name: '🌉 Golden Gate Welcome Center', addr: 'Golden Gate Bridge, San Francisco CA', maps: 'https://maps.google.com/?q=Golden+Gate+Bridge+Welcome+Center+San+Francisco', nextMode: 'car', nextDur: '~12 min' },
+      { lat: 37.8579, lng: -122.4827, name: '🚢 Sausalito · déjeuner · 11h30→13h30', addr: 'Sausalito Ferry Terminal, CA 94965', maps: 'https://maps.google.com/?q=Sausalito+Ferry+Terminal+CA', nextMode: 'ferry', nextDur: '~30 min' },
+      { lat: 37.8087, lng: -122.4098, name: '⛴ Pier 39 · arrivée ferry · ~14h00', addr: 'Pier 39, San Francisco CA', maps: 'https://maps.google.com/?q=Pier+39+San+Francisco+CA', nextMode: 'walk', nextDur: '~12 min' },
+      { lat: 37.8024, lng: -122.4058, name: '🗼 Coit Tower · 14h30', addr: '1 Telegraph Hill Blvd, San Francisco CA', maps: 'https://maps.google.com/?q=Coit+Tower+San+Francisco+CA', nextMode: 'walk', nextDur: '~5 min' },
+      { lat: 37.7974, lng: -122.4063, name: '📚 City Lights · Washington Square · 15h30', addr: '261 Columbus Ave, San Francisco CA', maps: 'https://maps.google.com/?q=City+Lights+Bookstore+San+Francisco+CA' },
+    ]
+  },
+  {
+    id: 'd15', label: '15/08', title: '15 août — Lands End + Sutro Baths', color: '#06b88a',
+    stops: [
+      { lat: 37.8087, lng: -122.4098, name: '🦭 Pier 39 · otaries · matin libre', addr: 'Pier 39, San Francisco CA', maps: 'https://maps.google.com/?q=Pier+39+San+Francisco+CA', nextMode: 'uber', nextDur: '~30 min' },
+      { lat: 37.7790, lng: -122.5134, name: '🌊 Lands End + Ruines Sutro Baths · 14h30', addr: '1004 Point Lobos Ave, San Francisco CA', maps: 'https://maps.google.com/?q=Sutro+Baths+San+Francisco+CA' },
+    ]
+  },
+  {
+    id: 'd16', label: '16/08', title: '16 août — Exploratorium + départ', color: '#06b88a',
+    stops: [
+      { lat: 37.8014, lng: -122.3975, name: '🔬 Exploratorium · 10h00', addr: 'Pier 15, San Francisco CA 94111', maps: 'https://maps.google.com/?q=Exploratorium+Pier+15+San+Francisco+CA', nextMode: 'walk', nextDur: '~5 min' },
+      { lat: 37.7935, lng: -122.3965, name: '🌉 Embarcadero · 13h30', addr: 'Embarcadero, San Francisco CA', maps: 'https://maps.google.com/?q=Embarcadero+San+Francisco+CA', nextMode: 'uber', nextDur: '~35 min' },
+      { lat: 37.6213, lng: -122.3790, name: '✈️ SFO · Uber 22h00 → CX0873 01h20', addr: 'San Francisco International Airport', maps: 'https://maps.google.com/?q=San+Francisco+International+Airport' },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════
+// BUILD SÉJOURS LIST
+// ═══════════════════════════════════════════
+function buildList() {
+  const sc = { ok: 'badge-ok', warn: 'badge-warn', tbd: 'badge-tbd' };
+  const DAY_LABELS = {
+    3:'3 août',4:'4 août',5:'5 août',6:'6 août',7:'7 août',8:'8 août',
+    9:'9 août',10:'10 août',11:'11 août',12:'12 août',13:'13 août',
+    14:'14 août',15:'15 août',16:'16 août'
+  };
+  const GROUP_COLORS = {
+    '🏰 Orlando':       { fg: '#e8a030', bg: 'rgba(232,160,48,0.13)'  },
+    '🌴 Miami':         { fg: '#f72585', bg: 'rgba(247,37,133,0.13)'  },
+    '🌁 San Francisco': { fg: '#06b88a', bg: 'rgba(6,184,138,0.13)'   }
+  };
+  let html = '';
+  Object.keys(DAY_LABELS).map(Number).forEach(day => {
+    const dayDests = destinations.filter(d => (d.days || []).includes(day));
+    if (!dayDests.length) return;
+    html += `<div class="dest-day-hdr">
+      <div class="dest-day-line"></div>
+      <div class="dest-day-label">${DAY_LABELS[day]}</div>
+      <div class="dest-day-line"></div>
+    </div>`;
+    dayDests.forEach(d => {
+      const gc = d.group ? (GROUP_COLORS[d.group] || { fg: 'var(--accent)', bg: 'rgba(108,143,255,0.13)' }) : null;
+      const groupTag = gc
+        ? `<span style="display:inline-block;font-size:9.5px;font-weight:800;color:${gc.fg};background:${gc.bg};border-radius:5px;padding:1px 6px;margin-right:6px;letter-spacing:0.4px;vertical-align:middle;">${d.group}</span>`
+        : '';
+      html += `<div class="dest-card" onclick="showDetail('${d.id}')">
+        <div class="dest-emoji">${d.emoji}</div>
+        <div class="dest-info">
+          <div class="dest-title">${groupTag}${d.title}</div>
+          <div class="dest-sub">${d.sub}</div>
+          <div class="dest-meta">
+            <div class="badge ${sc[d.status] || 'badge-rest'}">${d.statusText}</div>
+          </div>
+        </div>
+        <div class="dest-arrow">›</div>
+      </div>`;
+    });
+  });
+  document.getElementById('dest-list').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// DETAIL VIEW
+// ═══════════════════════════════════════════
+function showDetail(id) {
+  const d = destinations.find(x => x.id === id);
+  document.getElementById('detail-title').textContent = d.emoji + ' ' + d.title;
+  document.getElementById('detail-dates').textContent = d.dates;
+  const html = d.steps.map((s, i) => {
+    const isLast = i === d.steps.length - 1;
+    const noteHtml = (s.note||'').split('\n').filter(Boolean).map(l =>
+      `<div class="step-note">${l}</div>`).join('');
+    const tipHtml = s.tip ? `<div class="tip">${s.tip}</div>` : '';
+    const mapsBtn = s.maps ? `<a href="${s.maps}" target="_blank" class="step-btn btn-maps">📍 Ouvrir dans Maps</a>` : '';
+    const phoneBtn = s.phone ? `<a href="${s.phone}" class="step-btn btn-phone">📞 ${s.phoneLabel}</a>` : '';
+    const warnBtn = s.warnBtn ? `<a href="https://www.booking.com" target="_blank" class="step-btn btn-warn">⚠️ Payer Booking.com</a>` : '';
+    const hasWarn = (s.note||'').includes('⚠️') || s.warnBtn;
+    const dot = s.tip ? '#f9c74f' : hasWarn ? '#e8a030' : '#6c8fff';
+    return `<div class="step">
+      <div class="step-gutter">
+        <div class="step-dot" style="background:${dot}"></div>
+        ${!isLast ? '<div class="step-line"></div>' : ''}
+      </div>
+      <div class="step-body">
+        <div class="step-time">${s.time}</div>
+        <div class="step-name">${s.name}</div>
+        ${s.address ? `<div class="step-address">📍 ${s.address}</div>` : ''}
+        ${noteHtml}${tipHtml}
+        <div class="step-actions">${mapsBtn}${phoneBtn}${warnBtn}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('detail-steps').innerHTML = html;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-detail').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-detail').scrollTop = 0;
+}
+
+function goBack() {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-sejours').classList.add('active');
+  document.getElementById('btn-sejours').classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════
+const TAB_LABELS = {
+  sejours: 'Séjours',
+  map: 'Carte',
+  hotels: 'Hôtels',
+  tickets: 'Tickets',
+  vols: 'Vols',
+  budget: 'Budget'
+};
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('btn-' + name).classList.add('active');
+  const sub = document.getElementById('header-sub');
+  if (sub) sub.textContent = TAB_LABELS[name] || name;
+  closeOverlay();
+  if (name === 'map' && gMap) {
+    setTimeout(() => {
+      google.maps.event.trigger(gMap, 'resize');
+      showDayOnMap(currentDay);
+    }, 50);
+  }
+}
+
+function closeOverlay() {
+  document.getElementById('map-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════
+// CARTE INTERACTIVE — PAR DATE
+// ═══════════════════════════════════════════
+let gMap = null;
+let currentDay = 'all';
+let activeMapObjects = [];
+
+function clearMapObjects() {
+  activeMapObjects.forEach(obj => obj.setMap(null));
+  activeMapObjects = [];
+}
+
+// ── Mode icons & styles ──────────────────────
+const MODE_ICON  = { car:'🚗', uber:'🚕', walk:'🚶', ferry:'⛴', flight:'✈️' };
+const MODE_COLOR = { car:'var(--green)', uber:'var(--green)', walk:'var(--orange)', ferry:'var(--accent)', flight:'#c084fc' };
+let gDirectionsSvc = null;
+
+function showDayOnMap(dayId) {
+  currentDay = dayId;
+  document.querySelectorAll('.map-filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('fd-' + dayId).classList.add('active');
+  clearMapObjects();
+  closeOverlay();
+  if (!gMap) return;
+  if (dayId === 'all') { showAllOverview(); return; }
+  const day = DAY_PROGRAMS.find(d => d.id === dayId);
+  if (!day || !day.stops.length) return;
+
+  const mainStops = day.stops.filter(s => !s.optional);
+  const optStops  = day.stops.filter(s => s.optional);
+  const bounds    = new google.maps.LatLngBounds();
+  day.stops.forEach(s => bounds.extend({ lat: s.lat, lng: s.lng }));
+
+  // Numbered markers for ALL stops
+  day.stops.forEach((s, i) => {
+    const isOpt = !!s.optional;
+    const m = new google.maps.Marker({
+      position: { lat: s.lat, lng: s.lng }, map: gMap, zIndex: 20,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 16,
+        fillColor: isOpt ? '#1e2550' : day.color, fillOpacity: 1,
+        strokeColor: isOpt ? '#6070a0' : '#fff', strokeWeight: 2 },
+      label: { text: String(i+1), color: isOpt ? '#6070a0' : '#fff', fontSize: '11px', fontWeight: '700' }
+    });
+    m.addListener('click', () => focusStop(s.lat, s.lng));
+    activeMapObjects.push(m);
+  });
+
+  // Optional dashed spokes
+  if (optStops.length && mainStops.length) {
+    const last = mainStops[mainStops.length-1];
+    optStops.forEach(opt => {
+      const d = new google.maps.Polyline({
+        path: [{ lat: last.lat, lng: last.lng }, { lat: opt.lat, lng: opt.lng }],
+        geodesic: true, strokeColor: '#6070a0', strokeOpacity: 0.5, strokeWeight: 1.5,
+        icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2.5 }, offset: '0', repeat: '10px' }], map: gMap
+      });
+      activeMapObjects.push(d);
+    });
+  }
+
+  gMap.fitBounds(bounds, { top: 60, bottom: 220, left: 30, right: 30 });
+
+  if (mainStops.length < 2) { showStopListEnhanced(day, [], [], []); return; }
+
+  // Build legs between consecutive main stops
+  const legs = mainStops.slice(0,-1).map((s,i) => ({
+    from: s, to: mainStops[i+1], mode: s.nextMode || 'car', dur: s.nextDur || ''
+  }));
+  const resolvedDurs = legs.map(l => l.dur);
+
+  // Show overlay immediately with hardcoded durations
+  showStopListEnhanced(day, mainStops, resolvedDurs, legs);
+
+  // Find consecutive car/uber runs → DirectionsService
+  const runs = [];
+  let run = null;
+  legs.forEach((leg, i) => {
+    if (leg.mode === 'car' || leg.mode === 'uber') {
+      if (!run) run = { startIdx: i, stops: [leg.from] };
+      run.stops.push(leg.to);
+    } else {
+      if (run) { runs.push({ ...run, endIdx: i-1 }); run = null; }
+      drawStyledLeg(leg, day.color);
+    }
+  });
+  if (run) { runs.push({ ...run, endIdx: legs.length-1 }); run = null; }
+  // Draw remaining non-car after last car run
+  legs.forEach((leg, i) => {
+    const inRun = runs.some(r => i >= r.startIdx && i <= r.endIdx);
+    if (!inRun && leg.mode !== 'car' && leg.mode !== 'uber') drawStyledLeg(leg, day.color);
+  });
+
+  if (!runs.length) return;
+
+  if (!gDirectionsSvc) gDirectionsSvc = new google.maps.DirectionsService();
+  let pending = runs.length;
+
+  runs.forEach(r => {
+    const origin = new google.maps.LatLng(r.stops[0].lat, r.stops[0].lng);
+    const dest   = new google.maps.LatLng(r.stops[r.stops.length-1].lat, r.stops[r.stops.length-1].lng);
+    const wps    = r.stops.slice(1,-1).map(s => ({ location: new google.maps.LatLng(s.lat, s.lng), stopover: true }));
+    gDirectionsSvc.route({
+      origin, destination: dest, waypoints: wps,
+      travelMode: google.maps.TravelMode.DRIVING, optimizeWaypoints: false
+    }, (result, status) => {
+      if (status === 'OK') {
+        const renderer = new google.maps.DirectionsRenderer({
+          map: gMap, suppressMarkers: true, preserveViewport: true,
+          polylineOptions: { strokeColor: day.color, strokeWeight: 4, strokeOpacity: 0.9 }
+        });
+        renderer.setDirections(result);
+        activeMapObjects.push(renderer);
+        result.routes[0].legs.forEach((leg, li) => {
+          resolvedDurs[r.startIdx + li] = leg.duration.text;
+        });
+      } else {
+        // Fallback polyline
+        const poly = new google.maps.Polyline({
+          path: r.stops.map(s => ({ lat: s.lat, lng: s.lng })),
+          geodesic: true, strokeColor: day.color, strokeOpacity: 0.85, strokeWeight: 4, map: gMap
+        });
+        activeMapObjects.push(poly);
+      }
+      pending--;
+      if (pending === 0) showStopListEnhanced(day, mainStops, resolvedDurs, legs);
+    });
+  });
+}
+
+function drawStyledLeg(leg, dayColor) {
+  const st = {
+    walk:   { color: '#f9c74f', w: 2,   icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 }, offset: '0', repeat: '8px' }] },
+    ferry:  { color: '#6c8fff', w: 3,   icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '14px' }] },
+    flight: { color: '#c084fc', w: 2.5, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '16px' }] },
+    uber:   { color: dayColor,  w: 3.5, icons: null },
+  }[leg.mode] || { color: dayColor, w: 3, icons: null };
+
+  const opts = {
+    path: [{ lat: leg.from.lat, lng: leg.from.lng }, { lat: leg.to.lat, lng: leg.to.lng }],
+    geodesic: true, strokeColor: st.color,
+    strokeOpacity: st.icons ? 0 : 0.75, strokeWeight: st.w, map: gMap
+  };
+  if (st.icons) opts.icons = st.icons;
+  activeMapObjects.push(new google.maps.Polyline(opts));
+}
+
+function showStopListEnhanced(day, mainStops, durs, legs) {
+  let mainIdx = 0;
+  const stopsHtml = day.stops.map((s, i) => {
+    const isOpt = !!s.optional;
+    let legHtml = '';
+    if (!isOpt && mainIdx < legs.length) {
+      const leg = legs[mainIdx];
+      const dur = durs[mainIdx] || leg.dur || '';
+      const icon = MODE_ICON[leg.mode] || '→';
+      const color = MODE_COLOR[leg.mode] || 'var(--green)';
+      legHtml = `<div style="display:flex;align-items:center;gap:7px;padding:3px 0 3px 33px">
+        <div style="width:1.5px;height:18px;background:var(--border)"></div>
+        <span style="font-size:12px;font-weight:700;color:${color}">${icon}</span>
+        <span style="font-size:11px;color:var(--muted);font-weight:600">${dur}</span>
+      </div>`;
+      mainIdx++;
+    } else if (!isOpt) { mainIdx++; }
+
+    return `<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0 4px;${isOpt?'opacity:0.55':''}">
+      <div onclick="focusStop(${s.lat},${s.lng})" style="min-width:24px;height:24px;border-radius:50%;background:${isOpt?'#1e2550':day.color};color:${isOpt?'#6070a0':'#fff'};font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">${i+1}</div>
+      <div style="flex:1;min-width:0;cursor:pointer" onclick="focusStop(${s.lat},${s.lng})">
+        <div style="font-size:13px;font-weight:600">${s.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.addr}</div>
+      </div>
+      <a href="${s.maps}" target="_blank" onclick="event.stopPropagation()" style="color:var(--green);font-size:17px;flex-shrink:0;line-height:1;padding-left:2px">📍</a>
+    </div>${legHtml}`;
+  }).join('');
+
+  document.getElementById('overlay-content').innerHTML = `
+    <div style="font-size:14px;font-weight:700;margin-bottom:2px;padding-right:36px">${day.title}</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">${day.stops.length} étapes · toucher un numéro pour centrer</div>
+    ${stopsHtml}`;
+  document.getElementById('map-overlay').classList.add('show');
+}
+
+function showAllOverview() {
+  const zones = [
+    { lat: 28.397,  lng: -81.601,  color: '#f9c74f', scale: 14, label: 'Orlando' },
+    { lat: 25.7628, lng: -80.1300, color: '#e8a030', scale: 14, label: 'Miami' },
+    { lat: 28.5234, lng: -80.6820, color: '#c084fc', scale: 11, label: 'KSC' },
+    { lat: 37.8062, lng: -122.4168,color: '#06b88a', scale: 14, label: 'SF' },
+  ];
+  // Florida road route arc
+  const floridaLine = new google.maps.Polyline({
+    path: [
+      { lat: 28.397, lng: -81.601 },
+      { lat: 26.1495, lng: -80.2567 },
+      { lat: 25.7628, lng: -80.1300 },
+      { lat: 25.4038, lng: -80.7565 },
+      { lat: 28.5234, lng: -80.6820 },
+      { lat: 28.4294, lng: -81.3088 },
+    ],
+    geodesic: false, strokeColor: '#6c8fff', strokeOpacity: 0.35, strokeWeight: 2, map: gMap
+  });
+  activeMapObjects.push(floridaLine);
+  // Flight MCO→SFO arc
+  const flightArc = new google.maps.Polyline({
+    path: [{ lat: 28.4294, lng: -81.3088 }, { lat: 37.6213, lng: -122.3790 }],
+    geodesic: true, strokeColor: '#c084fc', strokeOpacity: 0.5, strokeWeight: 2,
+    icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '16px' }],
+    map: gMap
+  });
+  activeMapObjects.push(flightArc);
+  const bounds = new google.maps.LatLngBounds();
+  zones.forEach(z => {
+    const m = new google.maps.Marker({
+      position: { lat: z.lat, lng: z.lng }, map: gMap,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: z.scale, fillColor: z.color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+    });
+    activeMapObjects.push(m);
+    bounds.extend({ lat: z.lat, lng: z.lng });
+  });
+  gMap.fitBounds(bounds, { top: 50, bottom: 80, left: 40, right: 40 });
+}
+
+function focusStop(lat, lng) {
+  if (!gMap) return;
+  gMap.panTo({ lat, lng });
+  gMap.setZoom(15);
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE MAPS INIT
+// ═══════════════════════════════════════════
+function initMap() {
+  const map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 30, lng: -90 }, zoom: 4,
+    disableDefaultUI: true, zoomControl: true,
+    zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+    gestureHandling: 'greedy',
+    styles: [
+      { elementType: 'geometry', stylers: [{ color: '#0d1128' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#8892b0' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#0d1128' }] },
+      { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#aab4e0' }] },
+      { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d4deff' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1a2040' }] },
+      { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#1e3060' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#071520' }] },
+      { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#0f1830' }] },
+      { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+      { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    ]
+  });
+  gMap = map;
+  showAllOverview();
+}
+
+buildList();
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6NJ2zfy4HHnv-1y9vyOZ9IatGATrJDTE&callback=initMap&language=fr">
+</script>
+</body>
+</html>
