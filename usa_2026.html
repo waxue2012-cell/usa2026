@@ -484,8 +484,8 @@
             <div class="badge" style="background:rgba(249,199,79,0.12);color:#f9c74f">⚡ À réserver</div>
           </div>
           <div class="ticket-rows">
-            <div class="row"><span class="row-l">Date</span><span class="row-r">4 août 2026</span></div>
-            <div class="row"><span class="row-l">Ouverture</span><span class="row-r o">3 jours avant · 7h heure locale (1er août)</span></div>
+            <div class="row"><span class="row-l">Date</span><span class="row-r">5 août 2026</span></div>
+            <div class="row"><span class="row-l">Ouverture</span><span class="row-r o">3 jours avant · 7h heure locale (2 août)</span></div>
             <div class="row"><span class="row-l">Priorité 1</span><span class="row-r">Frozen Ever After ✅</span></div>
             <div class="row"><span class="row-l">Priorité 2</span><span class="row-r">Remy's Ratatouille Adventure ⚠️</span></div>
           </div>
@@ -921,11 +921,11 @@ const destinations = [
     ]
   },
 
-  // ── 4 AOÛT : EPCOT ────────────────────────
+  // ── 5 AOÛT : EPCOT ────────────────────────
   {
     id: 'epcot', emoji: '🚀',
     title: 'EPCOT', sub: 'Journée complète · Future World + World Showcase',
-    dates: '4 août', days: [4], group: '🏰 Orlando', status: 'ok', statusText: 'Programme prêt',
+    dates: '5 août', days: [5], group: '🏰 Orlando', status: 'ok', statusText: 'Programme prêt',
     steps: [
       { time: '9h00–9h30', name: 'Départ hôtel → EPCOT',
         address: 'Trajet ~10 min depuis ' + HOTEL_ORL,
@@ -950,11 +950,11 @@ const destinations = [
     ]
   },
 
-  // ── 5 AOÛT : REPOS ────────────────────────
+  // ── 4 AOÛT : REPOS ────────────────────────
   {
     id: 'repos', emoji: '🏊',
     title: 'Repos complet', sub: 'Piscine · Town Center · 0 voiture',
-    dates: '5 août', days: [5], group: '🏰 Orlando', status: 'ok', statusText: 'Pas de voiture',
+    dates: '4 août', days: [4], group: '🏰 Orlando', status: 'ok', statusText: 'Pas de voiture',
     steps: [
       { time: 'Matin', name: 'Piscine hôtel + brunch tranquille',
         address: HOTEL_ORL, maps: HOTEL_ORL_MAPS,
@@ -1324,17 +1324,17 @@ const DAY_PROGRAMS = [
     ]
   },
   {
-    id: 'd04', label: '4/08', title: '4 août — EPCOT', color: '#f9c74f',
-    stops: [
-      { lat: 28.397,  lng: -81.601,  name: '🏨 Hôtel — départ', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'car', nextDur: '~15 min' },
-      { lat: 28.3748, lng: -81.5494, name: '🚀 EPCOT', addr: '200 Epcot Center Dr, Lake Buena Vista FL', maps: 'https://maps.google.com/?q=EPCOT+200+Epcot+Center+Dr+Lake+Buena+Vista+FL' },
-    ]
-  },
-  {
-    id: 'd05', label: '5/08', title: '5 août — Repos', color: '#06b88a',
+    id: 'd04', label: '4/08', title: '4 août — Repos', color: '#06b88a',
     stops: [
       { lat: 28.397,  lng: -81.601,  name: '🏊 Hôtel — repos & piscine', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'walk', nextDur: '~5 min' },
       { lat: 28.3940, lng: -81.5996, name: '🛍 Flamingo Crossings Town Center', addr: '12555 Regency Village Dr, Winter Garden FL', maps: 'https://maps.google.com/?q=Flamingo+Crossings+Town+Center+Winter+Garden+FL' },
+    ]
+  },
+  {
+    id: 'd05', label: '5/08', title: '5 août — EPCOT', color: '#f9c74f',
+    stops: [
+      { lat: 28.397,  lng: -81.601,  name: '🏨 Hôtel — départ', addr: '2111 Flagler Ave, Winter Garden FL', maps: 'https://maps.google.com/?q=2111+Flagler+Ave+Winter+Garden+FL+34787', nextMode: 'car', nextDur: '~15 min' },
+      { lat: 28.3748, lng: -81.5494, name: '🚀 EPCOT', addr: '200 Epcot Center Dr, Lake Buena Vista FL', maps: 'https://maps.google.com/?q=EPCOT+200+Epcot+Center+Dr+Lake+Buena+Vista+FL' },
     ]
   },
   {
